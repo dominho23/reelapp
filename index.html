@@ -107,7 +107,7 @@ body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font
 .mini-stat .sl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
 
 /* Feed card */
-.feed-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:16px 18px;margin-bottom:8px}
+.feed-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:16px 18px;margin-bottom:8px}
 .feed-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .feed-user-row{display:flex;align-items:center;gap:9px}
 .feed-av{width:32px;height:32px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--dim);flex-shrink:0}
@@ -131,7 +131,7 @@ body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font
 .nav-fab:active{transform:scale(0.93)}
 
 /* Views (non-home) */
-.sub-screen{position:fixed;inset:0 0 calc(100px + env(safe-area-inset-bottom)) 0;z-index:15;display:flex;flex-direction:column;overflow:hidden;max-width:430px;margin:0 auto;background:var(--bg)}
+.sub-screen{position:fixed;inset:0;z-index:15;display:flex;flex-direction:column;overflow:hidden;max-width:430px;margin:0 auto;background:var(--bg)}
 .sub-screen.hidden{display:none!important}
 .sub-header{padding:52px 16px 0;display:flex;align-items:center;gap:12px;flex-shrink:0;background:var(--bg)}
 .sub-back{background:var(--card);border:1px solid var(--border2);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--white);font-size:16px}
@@ -154,11 +154,11 @@ body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font
 
 /* LOGBUCH */
 .day-label{font-family:'Space Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin:18px 0 8px}
-.catch-item{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;margin-bottom:8px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;position:relative;overflow:hidden}
-.catch-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--white)}
-.catch-item.other::before{background:var(--subtle)}
-.catch-emoji{font-size:1.8rem;margin-top:2px}
-.catch-photo{width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer}
+.catch-item{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;margin-bottom:8px;display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:start;position:relative;overflow:hidden}
+.catch-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.4)}
+.catch-item.other::before{background:rgba(255,255,255,0.15)}
+.catch-emoji{font-size:1.8rem;width:52px;height:52px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.catch-photo{width:52px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer;flex-shrink:0}
 .catch-body .cname{font-size:17px;font-weight:700;color:var(--white)}
 .catch-body .cspot{font-size:13px;font-weight:500;color:var(--dim);margin-top:3px}
 .catch-body .cmeta{font-size:13px;font-weight:400;color:var(--muted);line-height:1.6;margin-top:4px}
@@ -359,7 +359,7 @@ body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.err{background:var(--danger);color:white}
 /* FILTER PILLS */
-.filter-pill{padding:8px 16px;background:var(--card);color:var(--muted);border:1px solid var(--border2);border-radius:20px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
+.filter-pill{padding:8px 16px;background:var(--card);color:var(--muted);border:1px solid var(--border2);border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
 .filter-pill.active{background:var(--white);color:var(--bg);border-color:var(--white)}
 .filter-pills-row::-webkit-scrollbar{display:none}
 </style>
@@ -466,15 +466,15 @@ body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font
     </div>
   </div>
 
-  <div class="session-banner" id="sessionBanner">
-    <div class="sb-left">
-      <div class="sb-label">// Session</div>
-      <div class="sb-value" id="sessionStatus">Nicht gestartet</div>
-    </div>
-    <button class="sb-btn" id="sessionBtn" onclick="toggleSession()">STARTEN</button>
-  </div>
-
   <div class="home-scroll" id="homeScroll">
+    <!-- Session Banner -->
+    <div class="session-banner" id="sessionBanner" style="margin:0 0 10px 0">
+      <div class="sb-left">
+        <div class="sb-label">// Session</div>
+        <div class="sb-value" id="sessionStatus">Nicht gestartet</div>
+      </div>
+      <button class="sb-btn" id="sessionBtn" onclick="toggleSession()">STARTEN</button>
+    </div>
     <!-- Gewässer -->
     <div class="section-lbl-home">// Aktives Gewässer</div>
     <div class="lake-card" onclick="openLakeSheet()">
@@ -503,6 +503,9 @@ body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font
   </div>
 
   <!-- Bottom Nav -->
+</div>
+
+
   <div class="bottom-nav">
     <div class="nav-item" onclick="showHome()">
       <div class="nav-icon active" id="nav-home">
@@ -534,7 +537,6 @@ body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font
       <div class="nav-lbl" id="navlbl-profil">Profil</div>
     </div>
   </div>
-</div>
 
 <!-- ════════════════ SUB SCREENS ════════════════ -->
 
@@ -1089,6 +1091,8 @@ function updateHomeHeader(){
 function showHome(){
   hideAllSubScreens();
   setActiveNav('home');
+  // Show home content again
+  document.getElementById('homeScroll').style.display='';
   renderHomeFeed();
   updateHomeStats();
 }
@@ -1096,6 +1100,8 @@ function showHome(){
 function showSubScreen(name){
   hideAllSubScreens();
   setActiveNav(name);
+  // Hide home content when on sub screens
+  document.getElementById('homeScroll').style.display='none';
   if(name==='stats'){document.getElementById('subStats').classList.remove('hidden');if(!document.getElementById('sview-logbuch').classList.contains('active'))switchStatsTab('logbuch');renderLogbuch();}
   if(name==='feed'){document.getElementById('subFeed').classList.remove('hidden');renderFeed();}
   if(name==='profil'){document.getElementById('subProfil').classList.remove('hidden');renderProfil();}
@@ -1650,7 +1656,7 @@ function renderSessions(){
   if(!sessions.length){el.innerHTML=`<div class="empty"><div class="ei">⏱</div><p>Noch keine Sessions.</p></div>`;return;}
   const groups={};
   sessions.forEach(s=>{const key=new Date(s.started_at).toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});if(!groups[key])groups[key]=[];groups[key].push(s);});
-  el.innerHTML=Object.entries(groups).map(([day,items])=>`<div class="day-label">${day}</div>`+items.map(s=>{
+  el.innerHTML=Object.entries(groups).map(([day,items])=>`<div class="day-label">// ${day}</div>`+items.map(s=>{
     const isMe=s.fisher===currentUser;
     const start=new Date(s.started_at).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
     const end=s.ended_at?new Date(s.ended_at).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'}):'–';
@@ -1673,7 +1679,7 @@ function renderLogbuch(){
   const el=document.getElementById('logbuchContent');if(!el)return;
   if(!catches.length){el.innerHTML=`<div class="empty"><div class="ei">🎣</div><p>Noch keine Fänge.</p></div>`;return;}
   const groups={};catches.forEach(c=>{const k=new Date(c.created_at||c.time).toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long'});if(!groups[k])groups[k]=[];groups[k].push(c);});
-  el.innerHTML=Object.entries(groups).map(([day,items])=>`<div class="day-label">${day}</div>`+items.map(c=>{
+  el.innerHTML=Object.entries(groups).map(([day,items])=>`<div class="day-label">// ${day}</div>`+items.map(c=>{
     const isMe=c.fisher===currentUser;
     const time=new Date(c.created_at||c.time).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
     const emoji=SPECIES_EMOJI[c.species]||'🐟';
@@ -1785,7 +1791,7 @@ function showToast(msg,isErr=false){const t=document.getElementById('toast');t.t
 
 init();
 
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').then(()=>console.log('SW ✅')).catch(e=>console.warn('SW Fehler:',e));});}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(()=>console.log('SW ✅')).catch(e=>console.warn('SW Fehler:',e));});}
 </script>
 </body>
 </html>
