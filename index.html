@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0c0c0c">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+<title>REEL</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@200;300&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+
+:root{
+  --bg:#0c0c0c;--surface:#141414;--card:#1a1a1a;--card2:#222;
+  --border:#333;--border2:#3e3e3e;
+  --white:#ffffff;--dim:#cccccc;--muted:#aaaaaa;--subtle:#666;
+  --danger:#e05252;--success:#4caf50;
+}
+
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font-size:16px;height:100%}
+.screen{position:fixed;inset:0;z-index:10;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;max-width:430px;margin:0 auto}
+.screen.hidden{display:none!important}
+
+/* ── LOGIN ── */
+#loginScreen{background:var(--bg);align-items:center;justify-content:center;padding:40px 28px;z-index:32}
+.login-logo{text-align:center;margin-bottom:52px}
+.login-wordmark{font-family:'Montserrat',sans-serif;font-weight:200;font-size:2.6rem;letter-spacing:0.5em;text-indent:0.5em;color:var(--white);line-height:1;margin-top:16px}
+.login-slogan{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--subtle);margin-top:10px}
+.login-card{width:100%;max-width:360px;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px}
+.login-section-title{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.input-grp{margin-bottom:12px}
+.input-grp label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:7px}
+.input-grp input{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;color:var(--white);font-family:'Inter',sans-serif;font-size:16px;outline:none;transition:border-color 0.2s;-webkit-appearance:none}
+.input-grp input:focus{border-color:#555}
+.input-grp input::placeholder{color:var(--subtle)}
+.btn-primary{width:100%;padding:16px;background:var(--white);color:#0a0a0a;border:none;border-radius:12px;font-family:'Montserrat',sans-serif;font-weight:300;font-size:14px;letter-spacing:0.3em;text-indent:0.3em;cursor:pointer;margin-top:8px;transition:opacity 0.15s}
+.btn-primary:active{opacity:0.85}
+.btn-secondary{width:100%;padding:14px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:12px;font-family:'Montserrat',sans-serif;font-weight:300;font-size:13px;letter-spacing:0.2em;cursor:pointer;margin-top:8px;transition:opacity 0.15s}
+.btn-secondary:active{opacity:0.7}
+
+/* ── GROUP SCREEN ── */
+#groupScreen{background:var(--bg);overflow-y:auto;z-index:28}
+.group-header{padding:56px 24px 24px;border-bottom:1px solid var(--border)}
+.group-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.group-logo{display:flex;align-items:center;gap:10px}
+.group-wordmark{font-family:'Montserrat',sans-serif;font-weight:200;font-size:1.3rem;letter-spacing:0.4em;color:var(--white);text-indent:0.4em}
+.group-greeting{font-size:22px;font-weight:700;letter-spacing:-0.02em;color:var(--white);margin-bottom:4px}
+.group-sub{font-size:14px;color:var(--muted)}
+.group-list{padding:20px 24px}
+.group-list-title{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.group-item{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:18px 20px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color 0.15s}
+.group-item:active{border-color:#555}
+.group-item-left{display:flex;align-items:center;gap:14px}
+.group-av{width:44px;height:44px;border-radius:12px;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px}
+.group-item-name{font-size:17px;font-weight:600;color:var(--white);margin-bottom:3px}
+.group-item-meta{font-size:13px;color:var(--muted)}
+.group-badge{font-family:'Space Mono',monospace;font-size:10px;color:var(--subtle);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 8px}
+.group-actions{padding:0 24px 32px;display:flex;flex-direction:column;gap:8px}
+
+/* ── APP HEADER ── */
+.app-header{padding:52px 16px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg)}
+.header-logo{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.header-div{width:1px;height:22px;background:var(--border2)}
+.header-wm{font-family:'Montserrat',sans-serif;font-weight:200;font-size:1.05rem;letter-spacing:0.4em;color:var(--white);text-indent:0.4em}
+.header-right{display:flex;align-items:center;gap:8px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--success);display:inline-block;animation:blink 2s infinite}
+.sync-dot.offline{background:var(--danger);animation:none}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.group-chip{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:7px 12px;font-size:12px;font-weight:600;color:var(--white);cursor:pointer;display:flex;align-items:center;gap:5px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-av{width:36px;height:36px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0}
+
+/* ── HOME VIEW ── */
+.home-scroll{flex:1;overflow-y:auto;padding:14px 16px calc(120px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.home-scroll::-webkit-scrollbar{display:none}
+
+.section-lbl-home{font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:var(--muted);margin:18px 0 10px;display:flex;justify-content:space-between;align-items:center}
+.section-lbl-home span{color:var(--subtle);font-size:10px;text-transform:none;letter-spacing:0.05em;cursor:pointer}
+
+/* Gewässer card */
+.lake-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:10px;transition:border-color 0.15s}
+.lake-card:active{border-color:#555}
+.lake-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.lake-name{font-size:22px;font-weight:700;letter-spacing:-0.02em;color:var(--white);line-height:1.1}
+.lake-meta{font-size:14px;font-weight:500;color:var(--dim);margin-top:4px}
+
+/* Session banner */
+.session-banner{margin:10px 16px 0;padding:12px 16px;border-radius:14px;background:var(--card);border:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.session-banner.active{border-color:#444;background:#1e1e1e}
+.sb-left{flex:1;min-width:0}
+.sb-label{font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin-bottom:3px}
+.sb-value{font-size:15px;font-weight:600;color:var(--white)}
+.sb-btn{background:var(--white);color:#0a0a0a;border:none;padding:10px 18px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:300;font-size:12px;letter-spacing:0.2em;cursor:pointer;white-space:nowrap;transition:opacity 0.15s}
+.sb-btn:active{opacity:0.85}
+.sb-btn.stop{background:var(--card2);color:var(--white);border:1px solid var(--border2)}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.mini-stat{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:16px 14px}
+.mini-stat .sv{font-size:28px;font-weight:300;letter-spacing:-0.03em;color:var(--white);line-height:1;margin-bottom:4px}
+.mini-stat .sl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+
+/* Feed card */
+.feed-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:16px 18px;margin-bottom:8px}
+.feed-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.feed-user-row{display:flex;align-items:center;gap:9px}
+.feed-av{width:32px;height:32px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--dim);flex-shrink:0}
+.feed-user{font-size:16px;font-weight:600;color:var(--white)}
+.feed-time{font-size:13px;font-weight:500;color:var(--muted)}
+.feed-main{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.feed-photo-thumb{width:60px;height:60px;border-radius:12px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;cursor:pointer;object-fit:cover}
+.feed-fish{font-size:20px;font-weight:700;color:var(--white);letter-spacing:-0.02em;line-height:1.1;margin-bottom:4px}
+.feed-size{font-size:15px;font-weight:500;color:var(--dim)}
+.feed-tags{display:flex;gap:6px;flex-wrap:wrap}
+.feed-tag{font-size:13px;font-weight:500;color:var(--dim);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 10px}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,12,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border2);padding:10px 8px calc(28px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;align-items:center;z-index:35}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;cursor:pointer}
+.nav-icon{color:var(--muted)}
+.nav-icon.active{color:var(--white)}
+.nav-lbl{font-size:10px;font-weight:600;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase}
+.nav-lbl.active{color:var(--white)}
+.nav-fab{width:56px;height:56px;border-radius:50%;background:var(--white);display:flex;align-items:center;justify-content:center;margin-top:-22px;box-shadow:0 8px 32px rgba(0,0,0,0.8);cursor:pointer;transition:transform 0.15s;flex-shrink:0}
+.nav-fab:active{transform:scale(0.93)}
+
+/* Views (non-home) */
+.sub-screen{position:fixed;inset:0 0 calc(100px + env(safe-area-inset-bottom)) 0;z-index:15;display:flex;flex-direction:column;overflow:hidden;max-width:430px;margin:0 auto;background:var(--bg)}
+.sub-screen.hidden{display:none!important}
+.sub-header{padding:52px 16px 0;display:flex;align-items:center;gap:12px;flex-shrink:0;background:var(--bg)}
+.sub-back{background:var(--card);border:1px solid var(--border2);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--white);font-size:16px}
+.sub-title{font-size:18px;font-weight:700;letter-spacing:-0.01em;color:var(--white)}
+.scroll-area{flex:1;overflow-y:auto;padding:14px 16px calc(120px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.scroll-area::-webkit-scrollbar{display:none}
+
+/* TABS (for sub screens) */
+.tabs{display:flex;padding:12px 16px 0;gap:5px;flex-shrink:0;background:var(--bg)}
+.tab{flex:1;padding:9px 2px;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--subtle);background:var(--card);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.2s}
+.tab.active{color:var(--bg);background:var(--white);border-color:var(--white)}
+
+.view{display:none}
+.view.active{display:block}
+
+/* LOG TOGGLE */
+.log-toggle{display:flex;gap:6px;margin-bottom:14px}
+.log-toggle-btn{flex:1;padding:11px;background:var(--card);color:var(--muted);border:1px solid var(--border2);border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.log-toggle-btn.active{background:var(--white);color:var(--bg);border-color:var(--white)}
+
+/* LOGBUCH */
+.day-label{font-family:'Space Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin:18px 0 8px}
+.catch-item{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;margin-bottom:8px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;position:relative;overflow:hidden}
+.catch-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--white)}
+.catch-item.other::before{background:var(--subtle)}
+.catch-emoji{font-size:1.8rem;margin-top:2px}
+.catch-photo{width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer}
+.catch-body .cname{font-size:17px;font-weight:700;color:var(--white)}
+.catch-body .cspot{font-size:13px;font-weight:500;color:var(--dim);margin-top:3px}
+.catch-body .cmeta{font-size:13px;font-weight:400;color:var(--muted);line-height:1.6;margin-top:4px}
+.fisher-tag{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;margin-top:6px}
+.fisher-tag.me{background:rgba(255,255,255,0.1);color:var(--white);border:1px solid rgba(255,255,255,0.2)}
+.fisher-tag.other{background:var(--card2);color:var(--dim);border:1px solid var(--border)}
+.catch-right{text-align:right}
+.c-len{font-size:26px;font-weight:300;letter-spacing:-0.02em;color:var(--white);line-height:1}
+.c-unit{font-size:11px;font-weight:500;color:var(--muted)}
+.del-btn{background:none;border:none;color:var(--subtle);cursor:pointer;font-size:14px;margin-top:6px;opacity:0.5}
+.photo-add-row{display:flex;gap:6px;margin-top:8px}
+.photo-add-btn{padding:5px 10px;background:var(--card2);border:1px dashed var(--border2);border-radius:8px;font-size:12px;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+
+/* SESSIONS */
+.sess-item{background:var(--card);border:1px solid var(--border2);border-left:3px solid var(--white);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.sess-item.schneider{border-left-color:var(--subtle);opacity:0.75}
+.sess-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.sess-date{font-size:14px;font-weight:600;color:var(--white)}
+.sess-dur{font-size:22px;font-weight:300;letter-spacing:-0.02em;color:var(--white)}
+.sess-meta{font-size:13px;color:var(--muted);line-height:1.6}
+.sess-catches{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.08);color:var(--white);border-radius:6px;padding:4px 9px;font-size:12px;font-weight:600;margin-top:6px}
+.sess-schneider{display:inline-flex;align-items:center;gap:5px;background:var(--card2);color:var(--muted);border-radius:6px;padding:4px 9px;font-size:12px;font-weight:600;margin-top:6px}
+.sess-fisher{font-size:12px;color:var(--dim);font-weight:500;margin-top:4px}
+.sess-rating{margin-top:6px;font-size:14px}
+
+/* SPOTS */
+.spot-row{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sp-name{font-size:17px;font-weight:600;color:var(--white)}
+.sp-meta{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.5}
+.sp-count{font-size:28px;font-weight:300;letter-spacing:-0.02em;color:var(--white)}
+.add-row-btn{width:100%;padding:14px;background:transparent;color:var(--muted);border:1px dashed var(--border2);border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:10px}
+
+/* MAP */
+.map-legend{display:flex;flex-wrap:wrap;gap:10px;padding:10px 14px;background:var(--card);border:1px solid var(--border2);border-radius:12px;margin-bottom:10px;font-size:12px;font-weight:500}
+.ml-item{display:inline-flex;align-items:center;gap:5px;color:var(--dim)}
+.ml-dot{width:10px;height:10px;border-radius:50%;display:inline-block;box-shadow:0 0 0 2px var(--bg)}
+#mapContainer{width:100%;height:calc(100vh - 320px);min-height:380px;border-radius:14px;overflow:hidden;border:1px solid var(--border2);background:var(--card)}
+.map-stats{margin-top:10px;padding:10px 14px;background:var(--card);border:1px solid var(--border2);border-radius:12px;font-size:13px;color:var(--muted);text-align:center;font-weight:500}
+.map-stats strong{color:var(--white);font-weight:700}
+.leaflet-container{background:#0a0a0a;font-family:'Inter',sans-serif}
+.leaflet-popup-content-wrapper{background:var(--card);color:var(--white);border:1px solid var(--border2);border-radius:10px}
+.leaflet-popup-content{margin:10px 12px;font-size:13px;line-height:1.5}
+.leaflet-popup-tip{background:var(--card)}
+.leaflet-popup-close-button{color:var(--muted)!important;font-size:18px!important;padding:6px 8px!important}
+.leaflet-control-zoom a{background:var(--card)!important;color:var(--white)!important;border:1px solid var(--border2)!important}
+.leaflet-control-attribution{background:rgba(20,20,20,0.85)!important;color:var(--muted)!important;font-size:10px!important}
+.pop-photo{width:100%;max-width:200px;border-radius:8px;margin:6px 0;display:block}
+.pop-title{font-weight:700;font-size:14px;color:var(--white);margin-bottom:3px}
+.pop-meta{font-size:12px;color:var(--muted);line-height:1.5}
+.fish-marker{border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)}
+
+/* STATS */
+.leaderboard{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:16px;margin-bottom:10px}
+.lb-title{font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:var(--muted);margin-bottom:14px;text-align:center}
+.lb-row{display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.lb-row:last-child{border-bottom:none}
+.lb-row.me{background:rgba(255,255,255,0.04);margin:0 -16px;padding:10px 16px;border-radius:8px}
+.lb-rank{font-size:1.4rem;text-align:center}
+.lb-main{min-width:0}
+.lb-name{font-size:14px;font-weight:600;color:var(--white);margin-bottom:5px}
+.lb-you{color:var(--dim);font-weight:400;font-size:12px}
+.lb-bar-wrap{background:var(--card2);border-radius:6px;height:5px;overflow:hidden;margin-bottom:4px}
+.lb-bar{height:100%;background:var(--white);border-radius:6px;transition:width 0.4s ease}
+.lb-meta{font-size:11px;color:var(--muted);font-weight:500}
+.lb-count{font-size:24px;font-weight:300;letter-spacing:-0.02em;color:var(--white)}
+
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.stat-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:16px}
+.stat-card .sv{font-size:28px;font-weight:300;letter-spacing:-0.03em;color:var(--white);line-height:1;margin-bottom:4px}
+.stat-card .sl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+
+.section-lbl{font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:var(--muted);margin:18px 0 10px;display:flex;justify-content:space-between;align-items:center}
+.hint{font-size:10px;color:var(--subtle);text-transform:none;letter-spacing:0.05em}
+.chart-wrap{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:16px;margin-bottom:10px}
+.bars{display:flex;align-items:flex-end;gap:5px;height:72px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+.bar-stack{width:100%;display:flex;flex-direction:column;border-radius:4px 4px 0 0;overflow:hidden}
+.bar-lbl{font-size:9px;font-weight:700;color:var(--muted)}
+.heatmap{display:grid;grid-template-columns:auto repeat(12,1fr);gap:3px;font-size:10px}
+.hm-cell{aspect-ratio:1;border-radius:3px;background:rgba(255,255,255,0.04)}
+.hm-cell[data-v="1"]{background:rgba(255,255,255,0.18)}
+.hm-cell[data-v="2"]{background:rgba(255,255,255,0.4)}
+.hm-cell[data-v="3"]{background:rgba(255,255,255,0.65)}
+.hm-cell[data-v="4"]{background:rgba(255,255,255,0.95)}
+.hm-label{color:var(--subtle);text-align:center;padding:2px 0;font-weight:700}
+.hm-hour{color:var(--muted);text-align:right;padding-right:4px;display:flex;align-items:center;justify-content:flex-end;font-size:9px;font-weight:700}
+.insight{background:var(--card);border:1px solid var(--border2);border-left:3px solid var(--white);border-radius:12px;padding:14px 16px;margin-bottom:8px}
+.insight .ih{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:4px}
+.insight p{font-size:14px;color:var(--dim);line-height:1.5}
+.insight p strong{color:var(--white);font-weight:600}
+.insight.warn{border-left-color:var(--subtle)}
+.podium{display:flex;flex-direction:column;gap:8px}
+.podium-item{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.pi-label{font-size:13px;font-weight:500;color:var(--muted);margin-bottom:3px}
+.pi-val{font-size:16px;font-weight:700;color:var(--white)}
+
+/* MATCH CARD */
+.match-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:16px;margin-bottom:14px}
+.match-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.match-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)}
+.match-score{font-size:20px;font-weight:700;color:var(--white)}
+.match-body{font-size:14px;color:var(--dim);line-height:1.6}
+.match-body .hl{color:var(--white);font-weight:600}
+
+/* LIVE INFO */
+.live-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.info-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:14px}
+.info-card .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:5px}
+.info-card .val{font-size:16px;font-weight:600;color:var(--white)}
+.info-card .val.big{font-size:22px;font-weight:300;letter-spacing:-0.02em}
+.trend{display:inline-block;margin-left:4px;font-size:14px;font-weight:700}
+.trend.up{color:var(--success)}.trend.down{color:var(--danger)}.trend.flat{color:var(--muted)}
+.gps-dot{display:inline-block;width:6px;height:6px;background:var(--success);border-radius:50%;margin-right:5px;animation:blink 1.5s infinite}
+
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);align-items:flex-end;justify-content:center}
+.modal.open{display:flex}
+.modal-inner{width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:14px 20px 44px;animation:slideUp 0.28s cubic-bezier(0.34,1.1,0.64,1);max-height:92vh;overflow-y:auto}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-title{font-size:18px;font-weight:700;color:var(--white)}
+.close-btn{background:var(--card);border:none;color:var(--muted);width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.weather-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px}
+.w-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 4px;text-align:center}
+.w-item .wi{font-size:1.1rem}
+.w-item .wv{font-weight:600;font-size:14px;color:var(--white);margin-top:3px}
+.w-item .wl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-top:2px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:7px}
+.field input,.field select,.field textarea{width:100%;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:13px 14px;color:var(--white);font-family:'Inter',sans-serif;font-size:16px;outline:none;transition:border-color 0.2s;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#555}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.field select option{background:var(--card)}
+.field textarea{resize:none;height:72px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.spot-add{font-size:13px;font-weight:500;color:var(--dim);margin-top:6px;cursor:pointer;display:inline-block}
+.sicht-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.sicht-btn{padding:11px 4px;background:var(--card);color:var(--muted);border:1px solid var(--border2);border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;line-height:1.3;transition:all 0.15s}
+.sicht-btn span{font-size:11px;font-weight:400;opacity:0.75;display:block;margin-top:2px}
+.sicht-btn.active{background:#252525;color:var(--white);border-color:#666}
+.toggle-btn{width:100%;padding:12px 14px;background:var(--card);border:1px dashed var(--border2);border-radius:12px;color:var(--muted);font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.15s;text-align:left}
+.toggle-btn .toggle-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--card2);color:var(--muted);font-size:1rem;font-weight:600;line-height:1;transition:all 0.15s;flex-shrink:0}
+.toggle-btn .toggle-label{flex:1}
+.toggle-btn.active{background:#1e1e1e;color:var(--white);border-color:#666;border-style:solid}
+.toggle-btn.active .toggle-icon{background:var(--white);color:var(--bg)}
+.depth-toggle{margin-top:-4px;margin-bottom:6px}
+.photo-slot{display:flex;gap:10px;align-items:center;margin-top:6px}
+.photo-btn{flex:1;padding:12px;background:var(--card);color:var(--muted);border:1px dashed var(--border2);border-radius:12px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.photo-btn input[type=file]{display:none}
+.photo-preview{width:56px;height:56px;border-radius:10px;object-fit:cover;border:1px solid var(--border2);display:none}
+.photo-preview.show{display:block}
+.photo-remove{background:var(--danger);color:white;border:none;width:24px;height:24px;border-radius:50%;font-size:11px;cursor:pointer;display:none}
+.photo-remove.show{display:block}
+.save-btn{width:100%;padding:16px;background:var(--white);color:#0a0a0a;border:none;border-radius:12px;font-family:'Montserrat',sans-serif;font-weight:300;font-size:14px;letter-spacing:0.3em;text-indent:0.3em;cursor:pointer;margin-top:10px;transition:opacity 0.15s}
+.save-btn:active{opacity:0.85}
+.save-btn.secondary{background:transparent;color:var(--muted);border:1px solid var(--border2)}
+
+/* SESSION END */
+.star-row{display:flex;gap:8px;margin-bottom:4px}
+.star-btn{width:44px;height:44px;border-radius:10px;background:var(--card);border:1px solid var(--border2);font-size:1.2rem;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;justify-content:center}
+.star-btn.active{background:#252525;border-color:#666}
+.counter-row{display:flex;align-items:center;gap:14px}
+.counter-btn{width:44px;height:44px;border-radius:10px;background:var(--card);border:1px solid var(--border2);font-size:1.4rem;font-weight:300;color:var(--white);cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:center}
+.counter-val{font-size:28px;font-weight:300;letter-spacing:-0.02em;color:var(--white);min-width:36px;text-align:center}
+
+/* PHOTO OVERLAY */
+.photo-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.97);align-items:center;justify-content:center;padding:60px 20px 40px;cursor:pointer}
+.photo-overlay.open{display:flex}
+.photo-overlay img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;pointer-events:none}
+.photo-overlay-close{position:absolute;top:50px;right:20px;z-index:301;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);color:white;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
+
+/* BOTTOM SHEET (groups) */
+.bs-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);z-index:45;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.bs-overlay.open{opacity:1;pointer-events:all}
+.bottom-sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:12px 24px 48px;z-index:46;transition:transform 0.32s cubic-bezier(0.32,0.72,0,1)}
+.bottom-sheet.open{transform:translateX(-50%) translateY(0)}
+.bs-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px}
+.bs-title{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+
+/* GEWÄSSER SHEET */
+.gw-option{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.gw-option:last-child{border-bottom:none}
+.gw-option-name{font-size:17px;font-weight:500;color:var(--white);margin-bottom:3px}
+.gw-option-meta{font-size:13px;color:var(--muted)}
+.gw-option-dot{width:8px;height:8px;border-radius:50%;background:var(--white);flex-shrink:0}
+.gw-search{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.gw-search input{background:none;border:none;outline:none;color:var(--white);font-family:'Inter',sans-serif;font-size:16px;width:100%}
+.gw-search input::placeholder{color:var(--muted)}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .ei{font-size:2.8rem;margin-bottom:12px;opacity:0.25}
+.empty p{font-size:15px;line-height:1.7;color:var(--muted)}
+
+/* TOAST */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--white);color:#0a0a0a;padding:12px 24px;border-radius:50px;font-size:14px;font-weight:600;z-index:200;transition:transform 0.3s cubic-bezier(0.34,1.2,0.64,1);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:none;max-width:90%;overflow:hidden;text-overflow:ellipsis}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--danger);color:white}
+/* FILTER PILLS */
+.filter-pill{padding:8px 16px;background:var(--card);color:var(--muted);border:1px solid var(--border2);border-radius:20px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
+.filter-pill.active{background:var(--white);color:var(--bg);border-color:var(--white)}
+.filter-pills-row::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ LOGIN ════════════════ -->
+<div id="loginScreen" class="screen">
+  <div class="login-logo">
+    <div style="display:flex;align-items:center;gap:16px;justify-content:center;margin-bottom:52px">
+      <svg width="48" height="48" viewBox="0 0 56 56" fill="none">
+        <circle cx="28" cy="28" r="24" stroke="#fff" stroke-width="1"/>
+        <circle cx="28" cy="28" r="16" stroke="#fff" stroke-width="1"/>
+        <circle cx="28" cy="28" r="3" fill="#fff"/>
+        <line x1="28" y1="12" x2="28" y2="4" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+        <line x1="28" y1="52" x2="28" y2="44" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+        <line x1="4" y1="28" x2="12" y2="28" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+        <line x1="44" y1="28" x2="52" y2="28" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+        <line x1="11.5" y1="11.5" x2="17.5" y2="17.5" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+        <line x1="38.5" y1="38.5" x2="44.5" y2="44.5" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+        <line x1="44.5" y1="11.5" x2="38.5" y2="17.5" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+        <line x1="11.5" y1="44.5" x2="17.5" y2="38.5" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+      <div style="width:1px;height:44px;background:rgba(255,255,255,0.2)"></div>
+      <div>
+        <div class="login-wordmark">REEL</div>
+        <div class="login-slogan">// track real. fish smart.</div>
+      </div>
+    </div>
+  </div>
+  <div class="login-card">
+    <div class="login-section-title">// Einloggen</div>
+    <div class="input-grp">
+      <label>Dein Name</label>
+      <input type="text" id="inputName" placeholder="z.B. Dominik" autocomplete="off">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">LOSLEGEN</button>
+  </div>
+</div>
+
+<!-- ════════════════ GROUP SCREEN ════════════════ -->
+<div id="groupScreen" class="screen hidden">
+  <div class="group-header">
+    <div class="group-header-top">
+      <div class="group-logo">
+        <svg width="20" height="20" viewBox="0 0 56 56" fill="none">
+        <circle cx="28" cy="28" r="24" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="28" cy="28" r="16" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="28" cy="28" r="3.5" fill="#fff"/>
+        <line x1="28" y1="12" x2="28" y2="4" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="28" y1="52" x2="28" y2="44" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="4" y1="28" x2="12" y2="28" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="44" y1="28" x2="52" y2="28" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="11.5" x2="17.5" y2="17.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="38.5" y1="38.5" x2="44.5" y2="44.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="44.5" y1="11.5" x2="38.5" y2="17.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="44.5" x2="17.5" y2="38.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+        <div class="group-wordmark">REEL</div>
+      </div>
+      <div class="user-av" id="groupAvatar">–</div>
+    </div>
+    <div class="group-greeting" id="groupGreeting">Hoi!</div>
+    <div class="group-sub">Wähle eine Gruppe oder erstelle eine neue.</div>
+  </div>
+  <div class="group-list">
+    <div class="group-list-title">// Meine Gruppen</div>
+    <div id="groupListContent"></div>
+  </div>
+  <div class="group-actions">
+    <button class="btn-primary" onclick="openCreateGroup()">+ Neue Gruppe erstellen</button>
+    <button class="btn-secondary" onclick="openJoinGroup()">Gruppe beitreten (Code)</button>
+    <button class="btn-secondary" onclick="doLogout()" style="color:var(--subtle);border-color:transparent">Abmelden</button>
+  </div>
+</div>
+
+<!-- ════════════════ APP (HOME) ════════════════ -->
+<div id="appScreen" class="screen hidden">
+  <div class="app-header">
+    <div class="header-logo">
+      <svg width="20" height="20" viewBox="0 0 56 56" fill="none">
+        <circle cx="28" cy="28" r="24" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="28" cy="28" r="16" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="28" cy="28" r="3.5" fill="#fff"/>
+        <line x1="28" y1="12" x2="28" y2="4" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="28" y1="52" x2="28" y2="44" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="4" y1="28" x2="12" y2="28" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="44" y1="28" x2="52" y2="28" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="11.5" x2="17.5" y2="17.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="38.5" y1="38.5" x2="44.5" y2="44.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="44.5" y1="11.5" x2="38.5" y2="17.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="44.5" x2="17.5" y2="38.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <div class="header-div"></div>
+      <div class="header-wm">REEL</div>
+    </div>
+    <div class="header-right">
+      <span class="sync-dot offline" id="syncDot"></span>
+      <div class="group-chip" onclick="showGroupScreen_fromApp()">
+        <span id="headerGroupName">–</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="user-av" id="appAvatar">–</div>
+    </div>
+  </div>
+
+  <div class="session-banner" id="sessionBanner">
+    <div class="sb-left">
+      <div class="sb-label">// Session</div>
+      <div class="sb-value" id="sessionStatus">Nicht gestartet</div>
+    </div>
+    <button class="sb-btn" id="sessionBtn" onclick="toggleSession()">STARTEN</button>
+  </div>
+
+  <div class="home-scroll" id="homeScroll">
+    <!-- Gewässer -->
+    <div class="section-lbl-home">// Aktives Gewässer</div>
+    <div class="lake-card" onclick="openLakeSheet()">
+      <div>
+        <div class="lake-label">// gewässer</div>
+        <div class="lake-name" id="lakeName">–</div>
+        <div class="lake-meta" id="lakeCode2">–</div>
+      </div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+
+    <!-- Match card -->
+    <div id="matchCard"></div>
+
+    <!-- Season stats -->
+    <div class="section-lbl-home">// Meine Saison <span onclick="showSubScreen('stats')">Alle →</span></div>
+    <div class="stats-row">
+      <div class="mini-stat"><div class="sv" id="homeFaenge">0</div><div class="sl">Fänge</div></div>
+      <div class="mini-stat"><div class="sv" id="homeAvg">–</div><div class="sl">Ø cm</div></div>
+      <div class="mini-stat"><div class="sv" id="homeSessions">0</div><div class="sl">Sessions</div></div>
+    </div>
+
+    <!-- Feed -->
+    <div class="section-lbl-home">// Gruppe · <span id="homeFeedLabel">–</span> <span onclick="showSubScreen('log')">Alle →</span></div>
+    <div id="homeFeed"><div class="empty"><div class="ei">🎣</div><p>Noch keine Fänge.</p></div></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="showHome()">
+      <div class="nav-icon active" id="nav-home">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="nav-lbl active" id="navlbl-home">Home</div>
+    </div>
+    <div class="nav-item" onclick="showSubScreen('stats')">
+      <div class="nav-icon" id="nav-stats">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <div class="nav-lbl" id="navlbl-stats">Stats</div>
+    </div>
+    <div class="nav-item" style="flex:0">
+      <div class="nav-fab" onclick="openCatchModal()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+    </div>
+    <div class="nav-item" onclick="showSubScreen('feed')">
+      <div class="nav-icon" id="nav-feed">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="nav-lbl" id="navlbl-feed">Feed</div>
+    </div>
+    <div class="nav-item" onclick="showSubScreen('profil')">
+      <div class="nav-icon" id="nav-profil">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="nav-lbl" id="navlbl-profil">Profil</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ SUB SCREENS ════════════════ -->
+
+<!-- STATS (includes logbuch, karte, spots, statistik) -->
+<div id="subStats" class="sub-screen hidden">
+  <div class="app-header">
+    <div class="header-logo">
+      <svg width="20" height="20" viewBox="0 0 56 56" fill="none">
+        <circle cx="28" cy="28" r="24" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="28" cy="28" r="16" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="28" cy="28" r="3.5" fill="#fff"/>
+        <line x1="28" y1="12" x2="28" y2="4" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="28" y1="52" x2="28" y2="44" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="4" y1="28" x2="12" y2="28" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="44" y1="28" x2="52" y2="28" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="11.5" x2="17.5" y2="17.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="38.5" y1="38.5" x2="44.5" y2="44.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="44.5" y1="11.5" x2="38.5" y2="17.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="44.5" x2="17.5" y2="38.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <div class="header-div"></div>
+      <div class="header-wm">REEL</div>
+    </div>
+    <div class="header-right">
+      <span class="sync-dot offline" id="syncDot2"></span>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchStatsTab('logbuch')">Log</div>
+    <div class="tab" onclick="switchStatsTab('spots')">Spots</div>
+    <div class="tab" onclick="switchStatsTab('karte')">Karte</div>
+    <div class="tab" onclick="switchStatsTab('statistik')">Stats</div>
+  </div>
+  <div class="scroll-area">
+    <div class="view active" id="sview-logbuch">
+      <div class="log-toggle">
+        <button class="log-toggle-btn active" id="logToggleCatches" onclick="switchLog('catches')">Fänge</button>
+        <button class="log-toggle-btn" id="logToggleSessions" onclick="switchLog('sessions')">Sessions</button>
+      </div>
+      <div id="logbuchContent"><div class="empty"><div class="ei">🎣</div><p>Noch keine Fänge.</p></div></div>
+      <div id="sessionsContent" style="display:none"></div>
+    </div>
+    <div class="view" id="sview-spots">
+      <button class="add-row-btn" onclick="openSpotModal()">+ Neuen Spot anlegen</button>
+      <div id="spotsContent"></div>
+    </div>
+    <div class="view" id="sview-karte">
+      <div class="map-legend">
+        <span class="ml-item"><span class="ml-dot" style="background:#fff"></span>Zander</span>
+        <span class="ml-item"><span class="ml-dot" style="background:#5b8fff"></span>Hecht</span>
+        <span class="ml-item"><span class="ml-dot" style="background:#f5a623"></span>Egli</span>
+        <span class="ml-item"><span class="ml-dot" style="background:#4caf50"></span>Forellen</span>
+        <span class="ml-item"><span class="ml-dot" style="background:#b062ff"></span>Andere</span>
+        <span class="ml-item">📍 Spot</span>
+      </div>
+      <div id="mapContainer"></div>
+      <div class="map-stats" id="mapStats"></div>
+    </div>
+    <div class="view" id="sview-statistik">
+      <div id="statsContent"><div class="empty"><div class="ei">📊</div><p>Noch keine Daten.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FEED -->
+<div id="subFeed" class="sub-screen hidden">
+  <div class="app-header">
+    <div class="header-logo">
+      <svg width="20" height="20" viewBox="0 0 56 56" fill="none">
+        <circle cx="28" cy="28" r="24" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="28" cy="28" r="16" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="28" cy="28" r="3.5" fill="#fff"/>
+        <line x1="28" y1="12" x2="28" y2="4" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="28" y1="52" x2="28" y2="44" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="4" y1="28" x2="12" y2="28" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="44" y1="28" x2="52" y2="28" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="11.5" x2="17.5" y2="17.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="38.5" y1="38.5" x2="44.5" y2="44.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="44.5" y1="11.5" x2="38.5" y2="17.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="44.5" x2="17.5" y2="38.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <div class="header-div"></div>
+      <div class="header-wm">REEL</div>
+    </div>
+  </div>
+  <!-- Filter pills -->
+  <div style="padding:12px 16px 0;display:flex;gap:8px;overflow-x:auto;flex-shrink:0;scrollbar-width:none">
+    <button class="filter-pill active" id="pill-alle" onclick="setFeedFilter('alle')">Alle</button>
+    <button class="filter-pill" id="pill-me" onclick="setFeedFilter('me')">Nur ich</button>
+    <div id="feedSpeciesPills" style="display:flex;gap:8px"></div>
+  </div>
+  <div class="scroll-area" style="padding-top:12px">
+    <div id="feedContent"><div class="empty"><div class="ei">🎣</div><p>Noch keine Fänge in der Gruppe.</p></div></div>
+  </div>
+</div>
+
+<!-- PROFIL -->
+<div id="subProfil" class="sub-screen hidden">
+  <div class="app-header">
+    <div class="header-logo">
+      <svg width="20" height="20" viewBox="0 0 56 56" fill="none">
+        <circle cx="28" cy="28" r="24" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="28" cy="28" r="16" stroke="#fff" stroke-width="1.2"/>
+        <circle cx="28" cy="28" r="3.5" fill="#fff"/>
+        <line x1="28" y1="12" x2="28" y2="4" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="28" y1="52" x2="28" y2="44" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="4" y1="28" x2="12" y2="28" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="44" y1="28" x2="52" y2="28" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="11.5" x2="17.5" y2="17.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="38.5" y1="38.5" x2="44.5" y2="44.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="44.5" y1="11.5" x2="38.5" y2="17.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="44.5" x2="17.5" y2="38.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <div class="header-div"></div>
+      <div class="header-wm">REEL</div>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div id="profilContent"></div>
+  </div>
+</div>
+
+<!-- ════════════════ MODALS ════════════════ -->
+
+<!-- CATCH MODAL -->
+<div class="modal" id="catchModal">
+  <div class="modal-inner">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Fang erfassen</div>
+      <button class="close-btn" onclick="closeCatchModal()">✕</button>
+    </div>
+    <div class="weather-strip">
+      <div class="w-item"><div class="wi">🌡</div><div class="wv" id="mTemp">–</div><div class="wl">Temp</div></div>
+      <div class="w-item"><div class="wi">🌬</div><div class="wv" id="mPress">–</div><div class="wl">Druck</div></div>
+      <div class="w-item"><div class="wi">💨</div><div class="wv" id="mWind">–</div><div class="wl">Wind</div></div>
+      <div class="w-item"><div class="wi">🌙</div><div class="wv" id="mMoon">–</div><div class="wl">Mond</div></div>
+    </div>
+    <div class="field">
+      <label>Spot</label>
+      <select id="f-spot"><option value="">– Kein Spot –</option></select>
+      <span class="spot-add" onclick="closeCatchModal();openSpotModal()">+ Neuen Spot anlegen</span>
+    </div>
+    <div class="field">
+      <label>Fischart</label>
+      <select id="f-species">
+        <optgroup label="Raubfische">
+          <option value="Zander">Zander</option>
+          <option value="Hecht">Hecht</option>
+          <option value="Barsch / Egli">Barsch / Egli</option>
+          <option value="Wels">Wels</option>
+          <option value="Huchen">Huchen</option>
+        </optgroup>
+        <optgroup label="Forellen & Lachsartige">
+          <option value="Bachforelle">Bachforelle</option>
+          <option value="Regenbogenforelle">Regenbogenforelle</option>
+          <option value="Seeforelle">Seeforelle</option>
+          <option value="Lachs (Atlantisch)">Lachs (Atlantisch)</option>
+          <option value="Äsche">Äsche</option>
+          <option value="Felchen / Renke">Felchen / Renke</option>
+          <option value="Seesaibling">Seesaibling</option>
+        </optgroup>
+        <optgroup label="Weissfische & andere">
+          <option value="Rotauge / Röteli">Rotauge / Röteli</option>
+          <option value="Rotfeder">Rotfeder</option>
+          <option value="Döbel / Alet">Döbel / Alet</option>
+          <option value="Karpfen">Karpfen</option>
+          <option value="Schleie">Schleie</option>
+          <option value="Brachsen / Brasse">Brachsen / Brasse</option>
+          <option value="Aal">Aal</option>
+          <option value="Trüsche / Quappe">Trüsche / Quappe</option>
+          <option value="Andere">Andere</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="field"><label>Länge (cm)</label><input type="number" id="f-length" placeholder="z.B. 65" inputmode="decimal"></div>
+    <div class="field"><label>Köder / Methode</label><input type="text" id="f-lure" placeholder="z.B. Gummifisch 12cm, weiss"></div>
+    <div class="field-row">
+      <div class="field"><label>Grundtiefe (m)</label><input type="number" id="f-depth" placeholder="z.B. 8" inputmode="decimal"></div>
+      <div class="field"><label>Wassertemp (°C)</label><input type="number" id="f-wtemp" placeholder="z.B. 12" inputmode="decimal"></div>
+    </div>
+    <div class="field depth-toggle">
+      <button type="button" class="toggle-btn" id="catchDepthToggleBtn" onclick="toggleCatchDepth()">
+        <span class="toggle-icon">+</span>
+        <span class="toggle-label">Andere Fangtiefe (z.B. Zapfen/Auftrieb)</span>
+      </button>
+    </div>
+    <div class="field" id="catchDepthField" style="display:none">
+      <label>Fangtiefe (m)</label>
+      <input type="number" id="f-catchdepth" placeholder="z.B. 4 (Köder-Tiefe)" inputmode="decimal">
+    </div>
+    <div class="field">
+      <label>Sichttiefe</label>
+      <div class="sicht-btns">
+        <button type="button" class="sicht-btn" data-val="low" onclick="selectSicht('low')">💧 &lt; 0.5m<span>trüb</span></button>
+        <button type="button" class="sicht-btn" data-val="mid" onclick="selectSicht('mid')">💧 0.5–1m<span>mittel</span></button>
+        <button type="button" class="sicht-btn" data-val="high" onclick="selectSicht('high')">💧 &gt; 1m<span>klar</span></button>
+      </div>
+      <input type="hidden" id="f-sicht" value="">
+    </div>
+    <div class="field">
+      <label>🐟 Fisch-Foto (optional)</label>
+      <div class="photo-slot">
+        <label class="photo-btn" id="photoLabel">📷 Foto aufnehmen / wählen<input type="file" id="f-photo" accept="image/*" onchange="handlePhoto(event)"></label>
+        <img class="photo-preview" id="photoPreview" alt="">
+        <button class="photo-remove" id="photoRemove" onclick="removePhoto()">✕</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>🗺 Navionics / Echolot Screenshot (optional)</label>
+      <div class="photo-slot">
+        <label class="photo-btn" id="navLabel">🖼 Screenshot wählen<input type="file" id="f-navphoto" accept="image/*" onchange="handleNavPhoto(event)"></label>
+        <img class="photo-preview" id="navPreview" alt="">
+        <button class="photo-remove" id="navRemove" onclick="removeNavPhoto()">✕</button>
+      </div>
+    </div>
+    <div class="field"><label>Notiz</label><textarea id="f-note" placeholder="Spot, Technik, Besonderes…"></textarea></div>
+    <button class="save-btn" onclick="saveCatch()">FANG SPEICHERN</button>
+  </div>
+</div>
+
+<!-- SPOT MODAL -->
+<div class="modal" id="spotModal">
+  <div class="modal-inner">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Spot anlegen</div>
+      <button class="close-btn" onclick="closeSpotModal()">✕</button>
+    </div>
+    <div class="field"><label>Spot-Name</label><input type="text" id="sp-name" placeholder="z.B. Staumauer Nord"></div>
+    <div class="field-row">
+      <div class="field"><label>Breitengrad</label><input type="number" id="sp-lat" step="0.000001" placeholder="Lat"></div>
+      <div class="field"><label>Längengrad</label><input type="number" id="sp-lon" step="0.000001" placeholder="Lon"></div>
+    </div>
+    <div class="field"><label>Notiz (optional)</label><textarea id="sp-note" placeholder="Tiefe, Struktur, Zugang…"></textarea></div>
+    <button class="save-btn" onclick="saveSpot()">SPOT SPEICHERN</button>
+    <button class="save-btn secondary" onclick="fillCurrentGps()" style="margin-top:6px">📍 Aktuelle Position einsetzen</button>
+  </div>
+</div>
+
+<!-- SESSION END MODAL -->
+<div class="modal" id="sessionModal">
+  <div class="modal-inner">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Session abschliessen</div>
+      <button class="close-btn" onclick="closeSessionModal()">✕</button>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:16px;margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:4px">Dauer</div><div style="font-size:24px;font-weight:300;color:var(--white)" id="sm-dur">–</div></div>
+        <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:4px">Fänge</div><div style="font-size:24px;font-weight:300;color:var(--white)" id="sm-catches">0</div></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Wie war's?</label>
+      <div class="star-row">
+        <div class="star-btn" onclick="setStar(1)">⭐</div>
+        <div class="star-btn" onclick="setStar(2)">⭐</div>
+        <div class="star-btn" onclick="setStar(3)">⭐</div>
+        <div class="star-btn" onclick="setStar(4)">⭐</div>
+        <div class="star-btn" onclick="setStar(5)">⭐</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Bisse total (inkl. Fehlbisse)</label>
+      <div class="counter-row">
+        <div class="counter-btn" onclick="changeBisse(-1)">−</div>
+        <div class="counter-val" id="bisseVal">0</div>
+        <div class="counter-btn" onclick="changeBisse(1)">+</div>
+      </div>
+    </div>
+    <div class="field"><label>Notiz (optional)</label><textarea id="sm-note" placeholder="Was hat heute funktioniert?"></textarea></div>
+    <button class="save-btn" onclick="endSession()">SESSION SPEICHERN</button>
+  </div>
+</div>
+
+<!-- PHOTO OVERLAY -->
+<div class="photo-overlay" id="photoOverlay" onclick="closePhotoOverlay()">
+  <button class="photo-overlay-close" onclick="event.stopPropagation();closePhotoOverlay()">✕</button>
+  <img id="photoOverlayImg" src="" alt="">
+</div>
+
+<!-- GROUP SHEET -->
+<div class="bs-overlay" id="bsOverlay" onclick="closeBsSheet()"></div>
+<div class="bottom-sheet" id="bsSheet">
+  <div class="bs-handle"></div>
+  <div class="bs-title" id="bsTitle">// Gruppe</div>
+  <div id="bsContent"></div>
+</div>
+
+<!-- LAKE SHEET -->
+<div class="bs-overlay" id="lakeOverlay" onclick="closeLakeSheet()"></div>
+<div class="bottom-sheet" id="lakeSheet" style="max-height:75vh;display:flex;flex-direction:column;padding-bottom:20px">
+  <div class="bs-handle"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div class="bs-title" style="margin-bottom:0">// Gewässer wählen</div>
+    <button onclick="closeLakeSheet()" style="background:var(--card);border:1px solid var(--border2);border-radius:50%;width:32px;height:32px;color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
+  </div>
+  <div class="gw-search" style="flex-shrink:0">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="lakeSearchInput" placeholder="See, Fluss, Gewässer..." oninput="filterLakes(this.value)">
+  </div>
+  <div id="lakeOptions" style="overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;margin:0 -24px;padding:0 24px"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG — Supabase Keys
+// ═══════════════════════════════════════
+const SUPABASE_URL = 'https://osxuabgbwrtrelvqzixx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_dQ1MJb_aqaGujfZ6joC_kA_o3BIBwgu';
+
+const SPECIES_EMOJI = {
+  'Zander':'🐟','Hecht':'🐠','Barsch / Egli':'🐡','Wels':'🐟','Huchen':'🐠',
+  'Bachforelle':'🦈','Regenbogenforelle':'🦈','Seeforelle':'🦈',
+  'Lachs (Atlantisch)':'🐠','Äsche':'🐟','Felchen / Renke':'🐟','Seesaibling':'🐟',
+  'Rotauge / Röteli':'🐟','Rotfeder':'🐟','Döbel / Alet':'🐟',
+  'Karpfen':'🐡','Schleie':'🐟','Brachsen / Brasse':'🐟',
+  'Aal':'🐍','Trüsche / Quappe':'🐟','Andere':'🐟'
+};
+
+const SPECIES_COLOR = {
+  'Zander':'#ffffff','Hecht':'#5b8fff','Barsch / Egli':'#f5a623',
+  'Bachforelle':'#4caf50','Regenbogenforelle':'#4caf50','Seeforelle':'#4caf50','Andere':'#b062ff'
+};
+
+const MONTHS=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+const MOON_PHASES=[
+  {min:0,max:0.03,name:'Neumond',emoji:'🌑'},{min:0.03,max:0.22,name:'Zunehmend',emoji:'🌒'},
+  {min:0.22,max:0.28,name:'Erstes Viertel',emoji:'🌓'},{min:0.28,max:0.47,name:'Zunehmend',emoji:'🌔'},
+  {min:0.47,max:0.53,name:'Vollmond',emoji:'🌕'},{min:0.53,max:0.72,name:'Abnehmend',emoji:'🌖'},
+  {min:0.72,max:0.78,name:'Letztes Viertel',emoji:'🌗'},{min:0.78,max:0.97,name:'Abnehmend',emoji:'🌘'},
+  {min:0.97,max:1.01,name:'Neumond',emoji:'🌑'}
+];
+
+// Schweizer Gewässer (erweiterbar)
+const SWISS_LAKES = [
+  {name:'Sihlsee',meta:'Kanton Schwyz · 10.9 km²',lat:47.135,lon:8.783},
+  {name:'Zürichsee',meta:'Kanton Zürich · 88.4 km²',lat:47.301,lon:8.574},
+  {name:'Vierwaldstättersee',meta:'Zentralschweiz · 113.6 km²',lat:47.003,lon:8.458},
+  {name:'Thunersee',meta:'Kanton Bern · 47.7 km²',lat:46.696,lon:7.701},
+  {name:'Brienzersee',meta:'Kanton Bern · 29.8 km²',lat:46.728,lon:8.014},
+  {name:'Bielersee',meta:'Kanton Bern · 39.3 km²',lat:47.086,lon:7.135},
+  {name:'Murtensee',meta:'Kanton Fribourg · 22.8 km²',lat:46.928,lon:7.105},
+  {name:'Neuenburgersee',meta:'Kanton Neuenburg · 217.9 km²',lat:46.934,lon:6.876},
+  {name:'Hallwilersee',meta:'Kanton Aargau · 10.2 km²',lat:47.283,lon:8.205},
+  {name:'Baldeggsee',meta:'Kanton Luzern · 5.3 km²',lat:47.197,lon:8.255},
+  {name:'Sempachersee',meta:'Kanton Luzern · 14.4 km²',lat:47.137,lon:8.171},
+  {name:'Zugersee',meta:'Kanton Zug · 38.4 km²',lat:47.115,lon:8.495},
+  {name:'Ägeri-/Ägerisee',meta:'Kanton Zug · 7.0 km²',lat:47.126,lon:8.625},
+  {name:'Walensee',meta:'Kanton St. Gallen · 24.1 km²',lat:47.118,lon:9.202},
+  {name:'Walen-/Wallensee',meta:'Kanton St. Gallen',lat:47.115,lon:9.214},
+  {name:'Bodensee (Obersee)',meta:'Grenzgewässer · 536 km²',lat:47.599,lon:9.482},
+  {name:'Rhein',meta:'Fluss · Grenzgewässer',lat:47.698,lon:8.616},
+  {name:'Aare',meta:'Fluss · Kanton Bern',lat:46.947,lon:7.440},
+  {name:'Reuss',meta:'Fluss · Kanton Aargau',lat:47.398,lon:8.218},
+  {name:'Urnäsch',meta:'Fluss · Kanton Appenzell',lat:47.317,lon:9.271},
+  {name:'Limmat',meta:'Fluss · Kanton Zürich',lat:47.376,lon:8.531},
+  {name:'Anderes Gewässer',meta:'Eigenes Gewässer eingeben',lat:null,lon:null}
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let currentUser=null, currentGroup=null, currentLake=null;
+let catches=[], spots=[], sessions=[], userGroups=[];
+let currentSession=null, sessionRating=0, sessionBisse=0;
+let currentGPS=null, currentWeather={}, pressureHistory=[];
+let supabaseOn=false, photoData=null, navPhotoData=null, sessionTimer=null;
+let catchDepthActive=false;
+let mapInstance=null, mapLayers={catches:null,spots:null,me:null};
+let currentSubScreen=null;
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+function init(){
+  supabaseOn=!!(SUPABASE_URL&&SUPABASE_ANON_KEY);
+  const s=localStorage.getItem('reel_v3_session');
+  if(s){
+    try{
+      const p=JSON.parse(s);
+      currentUser=p.u;
+      userGroups=JSON.parse(localStorage.getItem('reel_v3_groups_'+currentUser)||'[]');
+      if(p.g){
+        currentGroup=userGroups.find(g=>g.code===p.g)||null;
+        if(currentGroup){
+          currentLake=p.lake||currentGroup.lake||currentGroup.name;
+          showApp();updateClock();setInterval(updateClock,1000);return;
+        }
+      }
+      document.getElementById('loginScreen').classList.add('hidden');
+      showGroupScreen();
+    }catch(e){}
+  }
+  updateClock();setInterval(updateClock,1000);
+}
+
+// ═══════════════════════════════════════
+// LOGIN & LOGOUT
+// ═══════════════════════════════════════
+function doLogin(){
+  const n=document.getElementById('inputName').value.trim();
+  if(!n){showToast('Bitte Namen eingeben',true);return;}
+  currentUser=n;
+  userGroups=JSON.parse(localStorage.getItem('reel_v3_groups_'+currentUser)||'[]');
+  localStorage.setItem('reel_v3_session',JSON.stringify({u:n,g:null,lake:null}));
+  document.getElementById('loginScreen').classList.add('hidden');
+  showGroupScreen();
+}
+
+function doLogout(){
+  if(currentSession&&!confirm('Aktive Session wird abgebrochen. Wirklich ausloggen?'))return;
+  localStorage.removeItem('reel_v3_session');
+  currentUser=null;currentGroup=null;currentLake=null;
+  if(sessionTimer)clearInterval(sessionTimer);currentSession=null;
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('groupScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════
+// GROUP SCREEN
+// ═══════════════════════════════════════
+function showGroupScreen(){
+  hideAllSubScreens();
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('groupScreen').classList.remove('hidden');
+  document.getElementById('groupGreeting').textContent='Hi, '+currentUser+'!';
+  document.getElementById('groupAvatar').textContent=initials(currentUser);
+  renderGroupList();
+}
+
+function showGroupScreen_fromApp(){
+  currentGroup=null;
+  localStorage.setItem('reel_v3_session',JSON.stringify({u:currentUser,g:null,lake:null}));
+  document.getElementById('appScreen').classList.add('hidden');
+  hideAllSubScreens();
+  showGroupScreen();
+}
+
+function initials(name){return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+
+function renderGroupList(){
+  const el=document.getElementById('groupListContent');
+  if(!userGroups.length){
+    el.innerHTML=`<div class="empty" style="padding:32px 0"><div class="ei">🎣</div><p>Noch keine Gruppe.<br>Erstelle eine oder trete bei.</p></div>`;
+    return;
+  }
+  el.innerHTML=userGroups.map(g=>`
+    <div class="group-item" onclick="selectGroup('${g.code}')">
+      <div class="group-item-left">
+        <div class="group-av" style="font-size:14px;font-weight:700;color:var(--muted)">${g.name.substring(0,2).toUpperCase()}</div>
+        <div><div class="group-item-name">${esc(g.name)}</div><div class="group-item-meta">${esc(g.lake||g.name)} · ${g.code}</div></div>
+      </div>
+      <button onclick="event.stopPropagation();deleteGroup('${g.code}')" style="background:none;border:none;color:var(--subtle);cursor:pointer;font-size:18px;padding:8px;opacity:0.5">🗑</button>
+    </div>
+  `).join('');
+}
+
+function selectGroup(code){
+  currentGroup=userGroups.find(g=>g.code===code);
+  if(!currentGroup)return;
+  currentLake=currentGroup.lake||currentGroup.name;
+  saveSession();showApp();
+}
+
+function openCreateGroup(){
+  document.getElementById('bsTitle').textContent='// Neue Gruppe erstellen';
+  document.getElementById('bsContent').innerHTML=`
+    <div class="field"><label>Gruppenname</label><input type="text" id="gs-name" placeholder="z.B. Sihlsee 2025"></div>
+    <div class="field"><label>Hauptgewässer</label><input type="text" id="gs-lake" placeholder="z.B. Sihlsee"></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">Code wird automatisch generiert — teile ihn mit deinen Kollegen.</p>
+    <button class="save-btn" onclick="createGroup()">GRUPPE ERSTELLEN</button>
+  `;
+  openBsSheet();
+}
+
+function createGroup(){
+  const name=document.getElementById('gs-name').value.trim();
+  const lake=document.getElementById('gs-lake').value.trim();
+  if(!name){showToast('Name fehlt',true);return;}
+  const code=name.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,5)+(Math.floor(Math.random()*90)+10);
+  const group={name,lake:lake||name,code,created_by:currentUser,created_at:new Date().toISOString()};
+  userGroups.push(group);saveGroups();closeBsSheet();
+  showToast('✅ Gruppe «'+name+'» · Code: '+code);renderGroupList();
+}
+
+function openJoinGroup(){
+  document.getElementById('bsTitle').textContent='// Gruppe beitreten';
+  document.getElementById('bsContent').innerHTML=`
+    <div class="field"><label>Gruppen-Code</label><input type="text" id="gs-code" placeholder="z.B. SIHLSEE25" style="text-transform:uppercase"></div>
+    <div class="field"><label>Gewässer-Name</label><input type="text" id="gs-join-lake" placeholder="z.B. Sihlsee"></div>
+    <button class="save-btn" onclick="joinGroup()">BEITRETEN</button>
+  `;
+  openBsSheet();
+}
+
+function joinGroup(){
+  const code=document.getElementById('gs-code').value.trim().toUpperCase();
+  const lake=document.getElementById('gs-join-lake').value.trim();
+  if(!code){showToast('Code fehlt',true);return;}
+  if(userGroups.find(g=>g.code===code)){showToast('Bereits in dieser Gruppe',true);return;}
+  const group={name:lake||code,lake:lake||code,code,created_by:null,created_at:new Date().toISOString()};
+  userGroups.push(group);saveGroups();closeBsSheet();
+  showToast('✅ Gruppe beigetreten');renderGroupList();
+}
+
+function saveGroups(){localStorage.setItem('reel_v3_groups_'+currentUser,JSON.stringify(userGroups));}
+
+function deleteGroup(code){
+  if(!confirm('Gruppe entfernen? Deine Daten bleiben erhalten.'))return;
+  userGroups=userGroups.filter(g=>g.code!==code);
+  saveGroups();
+  renderGroupList();
+  showToast('Gruppe entfernt');
+}
+function saveSession(){localStorage.setItem('reel_v3_session',JSON.stringify({u:currentUser,g:currentGroup?.code||null,lake:currentLake}));}
+
+function openBsSheet(){document.getElementById('bsOverlay').classList.add('open');document.getElementById('bsSheet').classList.add('open');}
+function closeBsSheet(){document.getElementById('bsOverlay').classList.remove('open');document.getElementById('bsSheet').classList.remove('open');}
+
+// ═══════════════════════════════════════
+// APP
+// ═══════════════════════════════════════
+function showApp(){
+  document.getElementById('groupScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  document.getElementById('headerGroupName').textContent=currentLake||currentGroup?.name||'–';
+  document.getElementById('appAvatar').textContent=initials(currentUser);
+  updateHomeHeader();
+  loadAll();restoreSession();
+  getGPS();setInterval(getGPS,90000);
+  if(supabaseOn)setInterval(loadAll,15000);
+}
+
+function updateHomeHeader(){
+  const lake=currentLake||currentGroup?.name||'–';
+  document.getElementById('lakeName').textContent=lake;
+  document.getElementById('lakeCode2').textContent=currentGroup?.code||'';
+  document.getElementById('headerGroupName').textContent=lake;
+  document.getElementById('homeFeedLabel').textContent=lake;
+  saveSession();
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function showHome(){
+  hideAllSubScreens();
+  setActiveNav('home');
+  renderHomeFeed();
+  updateHomeStats();
+}
+
+function showSubScreen(name){
+  hideAllSubScreens();
+  setActiveNav(name);
+  if(name==='stats'){document.getElementById('subStats').classList.remove('hidden');if(!document.getElementById('sview-logbuch').classList.contains('active'))switchStatsTab('logbuch');renderLogbuch();}
+  if(name==='feed'){document.getElementById('subFeed').classList.remove('hidden');renderFeed();}
+  if(name==='profil'){document.getElementById('subProfil').classList.remove('hidden');renderProfil();}
+  currentSubScreen=name;
+}
+
+function switchStatsTab(tab){
+  document.querySelectorAll('#subStats .tab').forEach((t,i)=>t.classList.toggle('active',['logbuch','spots','karte','statistik'][i]===tab));
+  document.querySelectorAll('#subStats .view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('sview-'+tab).classList.add('active');
+  if(tab==='spots')renderSpots();
+  if(tab==='karte')setTimeout(renderMap,100);
+  if(tab==='statistik')renderStats();
+  if(tab==='logbuch')renderLogbuch();
+}
+
+function hideAllSubScreens(){
+  ['subStats','subFeed','subProfil'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  currentSubScreen=null;
+}
+
+function setActiveNav(name){
+  ['home','stats','feed','profil'].forEach(n=>{
+    document.getElementById('nav-'+n)?.classList.toggle('active',n===name);
+    document.getElementById('navlbl-'+n)?.classList.toggle('active',n===name);
+  });
+}
+
+function switchTab(tab){
+  // kept for compatibility
+}
+
+function updateClock(){const el=document.getElementById('timeDisplay');if(el)el.textContent=new Date().toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});}
+
+// ═══════════════════════════════════════
+// LAKE SHEET
+// ═══════════════════════════════════════
+function openLakeSheet(){
+  renderLakeOptions('');
+  document.getElementById('lakeSearchInput').value='';
+  document.getElementById('lakeOverlay').classList.add('open');
+  document.getElementById('lakeSheet').classList.add('open');
+}
+function closeLakeSheet(){
+  document.getElementById('lakeOverlay').classList.remove('open');
+  document.getElementById('lakeSheet').classList.remove('open');
+}
+function filterLakes(q){renderLakeOptions(q);}
+function renderLakeOptions(q){
+  const el=document.getElementById('lakeOptions');
+  const filtered=SWISS_LAKES.filter(l=>l.name.toLowerCase().includes(q.toLowerCase())||l.meta.toLowerCase().includes(q.toLowerCase()));
+  el.innerHTML=filtered.map(l=>`
+    <div class="gw-option" onclick="selectLake('${esc(l.name)}')">
+      <div><div class="gw-option-name">${esc(l.name)}</div><div class="gw-option-meta">${esc(l.meta)}</div></div>
+      ${currentLake===l.name?'<div class="gw-option-dot"></div>':''}
+    </div>
+  `).join('');
+}
+function selectLake(name){
+  currentLake=name;
+  closeLakeSheet();
+  updateHomeHeader();
+  loadAll();
+  showToast('📍 '+name+' ausgewählt');
+}
+
+// ═══════════════════════════════════════
+// HOME FEED & STATS
+// ═══════════════════════════════════════
+let feedFilter='alle';
+
+function setFeedFilter(f){
+  feedFilter=f;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pill-'+f)?.classList.add('active');
+  renderFeed();
+}
+
+function renderFeed(){
+  const el=document.getElementById('feedContent');if(!el)return;
+
+  // Build species pills dynamically
+  const species=[...new Set(catches.map(c=>c.species))].slice(0,4);
+  const pillsEl=document.getElementById('feedSpeciesPills');
+  if(pillsEl){
+    pillsEl.innerHTML=species.map(s=>`<button class="filter-pill ${feedFilter===s?'active':''}" id="pill-${esc(s)}" onclick="setFeedFilter('${esc(s)}')">${esc(s)}</button>`).join('');
+  }
+
+  let filtered=catches;
+  if(feedFilter==='me')filtered=catches.filter(c=>c.fisher===currentUser);
+  else if(feedFilter!=='alle')filtered=catches.filter(c=>c.species===feedFilter);
+
+  if(!filtered.length){el.innerHTML=`<div class="empty"><div class="ei">🎣</div><p>Keine Fänge${feedFilter!=='alle'?' für diesen Filter':''}.</p></div>`;return;}
+
+  el.innerHTML=filtered.map(c=>{
+    const isMe=c.fisher===currentUser;
+    const time=new Date(c.created_at).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+    const date=new Date(c.created_at).toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'});
+    const emoji=SPECIES_EMOJI[c.species]||'🐟';
+    const av=initials(c.fisher);
+    const photo=c.photo?`<img class="feed-photo-thumb" src="${c.photo}" onclick="showPhoto('${c.id}')" style="object-fit:cover" alt="">`:`<div class="feed-photo-thumb">${emoji}</div>`;
+    const spot=c.spot_id?spots.find(s=>s.id===c.spot_id):null;
+    const moonEmoji=c.moon_phase!=null?getMoonPhase(c.moon_phase).emoji:'';
+    return`<div class="feed-card">
+      <div class="feed-top">
+        <div class="feed-user-row"><div class="feed-av">${av}</div><div class="feed-user">${isMe?'Du':esc(c.fisher)}</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="feed-time">${date} · ${time}</div>
+          ${isMe?`<button onclick="deleteCatch(${typeof c.id==='string'?`'${c.id}'`:c.id})" style="background:none;border:none;color:var(--subtle);cursor:pointer;font-size:14px;opacity:0.5">🗑</button>`:''}
+        </div>
+      </div>
+      <div class="feed-main">
+        ${photo}
+        <div>
+          <div class="feed-fish">${esc(c.species)}</div>
+          <div class="feed-size">${c.length_cm?c.length_cm+' cm':'–'}${c.lure?' · '+esc(c.lure):''}</div>
+          ${spot?`<div style="font-size:13px;color:var(--muted);margin-top:3px">📍 ${esc(spot.name)}</div>`:''}
+        </div>
+      </div>
+      <div class="feed-tags">
+        ${c.weather_temp!=null?`<span class="feed-tag">🌡 ${c.weather_temp}°</span>`:''}
+        ${c.weather_pressure?`<span class="feed-tag">🌬 ${c.weather_pressure} hPa</span>`:''}
+        ${c.depth_m?`<span class="feed-tag">↕ ${c.depth_m}m</span>`:''}
+        ${moonEmoji?`<span class="feed-tag">${moonEmoji}</span>`:''}
+        ${c.visibility?`<span class="feed-tag">💧 ${c.visibility==='low'?'trüb':c.visibility==='mid'?'mittel':'klar'}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderProfil(){
+  const el=document.getElementById('profilContent');if(!el)return;
+  const mine=catches.filter(c=>c.fisher===currentUser);
+  const myLen=mine.filter(c=>c.length_cm).map(c=>parseFloat(c.length_cm));
+  const avg=myLen.length?Math.round(myLen.reduce((a,b)=>a+b,0)/myLen.length):null;
+  const best=myLen.length?Math.max(...myLen):null;
+  const mySessions=sessions.filter(s=>s.fisher===currentUser);
+
+  el.innerHTML=`
+    <div style="text-align:center;padding:32px 24px 24px">
+      <div style="width:80px;height:80px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--white);margin:0 auto 16px">${initials(currentUser)}</div>
+      <div style="font-size:24px;font-weight:700;color:var(--white);margin-bottom:4px">${esc(currentUser)}</div>
+      <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.15em">${currentGroup?.code||'–'} · ${esc(currentLake||'–')}</div>
+    </div>
+    <div style="padding:0 16px">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="sv">${mine.length}</div><div class="sl">Meine Fänge</div></div>
+        <div class="stat-card"><div class="sv">${mySessions.length}</div><div class="sl">Sessions</div></div>
+        <div class="stat-card"><div class="sv">${best?best+' cm':'–'}</div><div class="sl">Grösster Fisch</div></div>
+        <div class="stat-card"><div class="sv">${avg?avg+' cm':'–'}</div><div class="sl">Ø Länge</div></div>
+      </div>
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
+        <button class="btn-secondary" onclick="showGroupScreen_fromApp()">Gruppe wechseln</button>
+        <button class="btn-secondary" onclick="doLogout()" style="color:var(--danger);border-color:var(--danger)">Abmelden</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderHomeFeed(){
+  const el=document.getElementById('homeFeed');
+  if(!catches.length){el.innerHTML=`<div class="empty"><div class="ei">🎣</div><p>Noch keine Fänge.<br>Tippe + zum Erfassen.</p></div>`;return;}
+  const recent=catches.slice(0,5);
+  el.innerHTML=recent.map(c=>{
+    const isMe=c.fisher===currentUser;
+    const time=new Date(c.created_at).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+    const date=new Date(c.created_at).toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'});
+    const emoji=SPECIES_EMOJI[c.species]||'🐟';
+    const av=initials(c.fisher);
+    const photo=c.photo?`<img class="feed-photo-thumb" src="${c.photo}" onclick="showPhoto('${c.id}')" style="object-fit:cover" alt="">`:`<div class="feed-photo-thumb">${emoji}</div>`;
+    return`<div class="feed-card">
+      <div class="feed-top">
+        <div class="feed-user-row"><div class="feed-av">${av}</div><div class="feed-user">${isMe?'Du':esc(c.fisher)}</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="feed-time">${date} · ${time}</div>
+          ${isMe?`<button onclick="deleteCatch(${typeof c.id==='string'?`'${c.id}'`:c.id})" style="background:none;border:none;color:var(--subtle);cursor:pointer;font-size:14px;opacity:0.5">🗑</button>`:''}
+        </div>
+      </div>
+      <div class="feed-main">
+        ${photo}
+        <div><div class="feed-fish">${esc(c.species)}</div><div class="feed-size">${c.length_cm?c.length_cm+' cm':'–'}${c.lure?' · '+esc(c.lure):''}</div></div>
+      </div>
+      <div class="feed-tags">
+        ${c.weather_temp!=null?`<span class="feed-tag">🌡 ${c.weather_temp}°</span>`:''}
+        ${c.weather_pressure?`<span class="feed-tag">🌬 ${c.weather_pressure} hPa</span>`:''}
+        ${c.depth_m?`<span class="feed-tag">↕ ${c.depth_m}m</span>`:''}
+        ${c.moon_phase!=null?`<span class="feed-tag">${getMoonPhase(c.moon_phase).emoji}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateHomeStats(){
+  const mine=catches.filter(c=>c.fisher===currentUser);
+  const myLen=mine.filter(c=>c.length_cm).map(c=>parseFloat(c.length_cm));
+  const avg=myLen.length?Math.round(myLen.reduce((a,b)=>a+b,0)/myLen.length):null;
+  setText('homeFaenge',mine.length);
+  setText('homeAvg',avg?avg:'–');
+  setText('homeSessions',sessions.filter(s=>s.fisher===currentUser).length);
+}
+
+// ═══════════════════════════════════════
+// GPS & WEATHER (v3-6e logic preserved)
+// ═══════════════════════════════════════
+function getGPS(){
+  if(!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(pos=>{
+    currentGPS={lat:pos.coords.latitude,lon:pos.coords.longitude};
+    const el=document.getElementById('gpsDisplay');
+    if(el)el.innerHTML=`<span class="gps-dot"></span>${pos.coords.latitude.toFixed(5)}<br>${pos.coords.longitude.toFixed(5)}`;
+    fetchWeather(pos.coords.latitude,pos.coords.longitude);
+  },()=>{
+    const el=document.getElementById('gpsDisplay');
+    if(el)el.textContent='Sihlsee (default)';
+    currentGPS={lat:47.135,lon:8.783};
+    fetchWeather(47.135,8.783);
+  },{enableHighAccuracy:true,timeout:10000});
+}
+
+async function fetchWeather(lat,lon){
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,surface_pressure,windspeed_10m,weathercode&hourly=surface_pressure&daily=sunrise,sunset&past_hours=6&forecast_hours=1&wind_speed_unit=kmh&timezone=auto`;
+    const r=await fetch(url);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    const c=d.current;
+    if(!c)throw new Error('Keine current-Daten');
+    if(d.hourly&&d.hourly.surface_pressure)pressureHistory=d.hourly.surface_pressure.filter(v=>v!=null).slice(-6).map(v=>Math.round(v));
+    const trend=calcPressureTrend();
+    const moonPhase=computeMoonPhase(new Date());
+    const moonData=getMoonPhase(moonPhase);
+    let duskStr='–';
+    if(d.daily&&d.daily.sunrise&&d.daily.sunset){
+      const sr=new Date(d.daily.sunrise[0]).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+      const ss=new Date(d.daily.sunset[0]).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+      duskStr=`↑ ${sr}<br>↓ ${ss}`;
+    }
+    currentWeather={temp:c.temperature_2m,pressure:Math.round(c.surface_pressure),pressureTrend:trend,wind:Math.round(c.windspeed_10m),code:c.weathercode,moonPhase,moonName:moonData.name,sunrise:d.daily?.sunrise?.[0]||null,sunset:d.daily?.sunset?.[0]||null,fetchedAt:Date.now()};
+    const trendArrow=trend>1.5?'<span class="trend up">↗</span>':trend<-1.5?'<span class="trend down">↘</span>':'<span class="trend flat">→</span>';
+    setText('tempDisplay',c.temperature_2m+'°');
+    setHTML('pressDisplay',Math.round(c.surface_pressure)+' hPa'+trendArrow);
+    setText('windDisplay',Math.round(c.windspeed_10m)+' km/h');
+    setText('weatherDisplay',wIcon(c.weathercode));
+    setHTML('moonDisplay',`${moonData.emoji} ${moonData.name}`);
+    setHTML('duskDisplay',duskStr);
+    setText('mTemp',c.temperature_2m+'°');
+    setHTML('mPress',Math.round(c.surface_pressure)+trendArrow);
+    setText('mWind',Math.round(c.windspeed_10m)+' km/h');
+    setText('mMoon',moonData.emoji);
+    renderMatchCard();
+    document.getElementById('syncDot').classList.remove('offline');
+  }catch(e){
+    console.warn('[Weather]',e);
+    const moonPhase=computeMoonPhase(new Date());
+    const moonData=getMoonPhase(moonPhase);
+    setHTML('moonDisplay',`${moonData.emoji} ${moonData.name}`);
+    setText('mMoon',moonData.emoji);
+    if(!currentWeather.pressure){currentWeather.moonPhase=moonPhase;currentWeather.fetchedAt=Date.now();}
+  }
+}
+
+function computeMoonPhase(date){const synodic=29.53058867;const ref=Date.UTC(2000,0,6,18,14)/1000;const now=date.getTime()/1000;const daysSince=(now-ref)/86400;let phase=(daysSince%synodic)/synodic;if(phase<0)phase+=1;return phase;}
+function calcPressureTrend(){if(pressureHistory.length<2)return 0;return pressureHistory[pressureHistory.length-1]-pressureHistory[0];}
+function getMoonPhase(v){return MOON_PHASES.find(p=>v>=p.min&&v<p.max)||MOON_PHASES[0];}
+function wIcon(code){if(code===0)return'☀️ Klar';if(code<=3)return'⛅ Bewölkt';if(code<=49)return'🌫 Nebel';if(code<=59)return'🌦 Niesel';if(code<=69)return'🌧 Regen';if(code<=79)return'❄️ Schnee';return'⛈ Gewitter';}
+function setText(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+function setHTML(id,v){const el=document.getElementById(id);if(el)el.innerHTML=v;}
+
+// ═══════════════════════════════════════
+// SUPABASE (v3-6e logic preserved)
+// ═══════════════════════════════════════
+async function sbFetch(method,path,body){
+  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{method,headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':''},body:body?JSON.stringify(body):undefined});
+  if(!res.ok)throw new Error(await res.text());
+  return method==='DELETE'?null:res.json();
+}
+
+const lk=()=>currentGroup?.code||'';
+
+async function loadAll(){
+  const dot=document.getElementById('syncDot');
+  if(supabaseOn){
+    try{
+      catches=await sbFetch('GET',`catches?lake_code=eq.${encodeURIComponent(lk())}&order=created_at.desc`);
+      spots=await sbFetch('GET',`spots?lake_code=eq.${encodeURIComponent(lk())}&order=created_at.desc`);
+      sessions=await sbFetch('GET',`sessions?lake_code=eq.${encodeURIComponent(lk())}&order=started_at.desc`);
+      dot.classList.remove('offline');persistLocal();
+    }catch(e){dot.classList.add('offline');loadLocal();}
+  }else{dot.classList.add('offline');loadLocal();}
+  renderHomeFeed();updateHomeStats();renderLogbuch();renderSpots();populateSpotDropdown();renderMatchCard();
+  if(document.getElementById('sessionsContent')?.style.display!=='none')renderSessions();
+  if(currentSubScreen==='stats'){const activeTab=document.querySelector('#subStats .tab.active');if(activeTab?.textContent==='Karte')renderMap();}
+  if(currentSubScreen==='feed')renderFeed();
+  // Sync dots
+  const dot2=document.getElementById('syncDot2');if(dot2)dot2.className=document.getElementById('syncDot').className;
+}
+
+function persistLocal(){
+  localStorage.setItem('reel_v3_catches_'+lk(),JSON.stringify(catches));
+  localStorage.setItem('reel_v3_spots_'+lk(),JSON.stringify(spots));
+  localStorage.setItem('reel_v3_sessions_'+lk(),JSON.stringify(sessions));
+}
+function loadLocal(){
+  catches=JSON.parse(localStorage.getItem('reel_v3_catches_'+lk())||'[]');
+  spots=JSON.parse(localStorage.getItem('reel_v3_spots_'+lk())||'[]');
+  sessions=JSON.parse(localStorage.getItem('reel_v3_sessions_'+lk())||'[]');
+}
+
+// ═══════════════════════════════════════
+// SESSION (v3-6e + stars + bisse)
+// ═══════════════════════════════════════
+function restoreSession(){
+  const s=localStorage.getItem('reel_v3_active_session_'+currentUser);
+  if(s){try{currentSession=JSON.parse(s);}catch(e){}}
+  updateSessionUI();
+}
+function toggleSession(){if(currentSession)openSessionModal();else startSession();}
+function startSession(){
+  currentSession={id:'sess_'+Date.now(),started_at:new Date().toISOString(),fisher:currentUser,lake_code:lk(),start_weather:{...currentWeather},start_gps:currentGPS?{...currentGPS}:null};
+  localStorage.setItem('reel_v3_active_session_'+currentUser,JSON.stringify(currentSession));
+  updateSessionUI();showToast('🟢 Session gestartet');
+}
+function openSessionModal(){
+  if(!currentSession)return;
+  const dur=formatDuration(Date.now()-new Date(currentSession.started_at).getTime());
+  const sc=catches.filter(c=>c.session_id===currentSession.id&&c.fisher===currentUser).length;
+  document.getElementById('sm-dur').textContent=dur;
+  document.getElementById('sm-catches').textContent=sc;
+  document.getElementById('sm-note').value='';
+  sessionRating=0;sessionBisse=0;
+  document.getElementById('bisseVal').textContent='0';
+  document.querySelectorAll('.star-btn').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sessionModal').classList.add('open');
+}
+function closeSessionModal(){document.getElementById('sessionModal').classList.remove('open');}
+function setStar(n){sessionRating=n;document.querySelectorAll('.star-btn').forEach((s,i)=>s.classList.toggle('active',i<n));}
+function changeBisse(d){sessionBisse=Math.max(0,sessionBisse+d);document.getElementById('bisseVal').textContent=sessionBisse;}
+
+async function endSession(){
+  if(!currentSession)return;
+  const sc=catches.filter(c=>c.session_id===currentSession.id&&c.fisher===currentUser);
+  const endedAt=new Date().toISOString();
+  const durMs=new Date(endedAt).getTime()-new Date(currentSession.started_at).getTime();
+  const entry={
+    id:currentSession.id,lake_code:lk(),fisher:currentUser,
+    started_at:currentSession.started_at,ended_at:endedAt,
+    duration_min:Math.round(durMs/60000),catches_count:sc.length,
+    bisse:sessionBisse,rating:sessionRating||null,
+    note:document.getElementById('sm-note').value||null,
+    start_pressure:currentSession.start_weather?.pressure??null,
+    start_temp:currentSession.start_weather?.temp??null,
+    start_moon:currentSession.start_weather?.moonPhase??null,
+    start_lat:currentSession.start_gps?.lat??null,
+    start_lon:currentSession.start_gps?.lon??null
+  };
+  if(supabaseOn){try{await sbFetch('POST','sessions',entry);}catch(e){}}
+  sessions.unshift(entry);persistLocal();
+  localStorage.removeItem('reel_v3_active_session_'+currentUser);
+  currentSession=null;closeSessionModal();updateSessionUI();
+  if(document.getElementById('sessionsContent')?.style.display!=='none')renderSessions();
+  const msg=sc.length?`✅ ${sc.length} Fang${sc.length>1?'e':''} in ${formatDuration(durMs)}`:'🥶 Schneider! ('+formatDuration(durMs)+')';
+  showToast(msg);
+}
+
+async function deleteSession(id){
+  if(!confirm('Session löschen?'))return;
+  if(supabaseOn){try{await sbFetch('DELETE',`sessions?id=eq.${id}`);}catch(e){}}
+  sessions=sessions.filter(s=>s.id!==id);persistLocal();renderSessions();
+  if(currentSubScreen==='stats'){const t=document.querySelector('#subStats .tab.active');if(t?.textContent==='Stats')renderStats();}
+}
+
+function updateSessionUI(){
+  const banner=document.getElementById('sessionBanner');
+  const status=document.getElementById('sessionStatus');
+  const btn=document.getElementById('sessionBtn');
+  if(!banner)return;
+  if(currentSession){
+    banner.classList.add('active');
+    const upd=()=>{const dur=formatDuration(Date.now()-new Date(currentSession.started_at).getTime());const n=catches.filter(c=>c.session_id===currentSession.id&&c.fisher===currentUser).length;status.textContent=`🟢 Läuft · ${dur} · ${n} Fang${n===1?'':'e'}`;};
+    upd();if(sessionTimer)clearInterval(sessionTimer);sessionTimer=setInterval(upd,30000);
+    btn.textContent='BEENDEN';btn.classList.add('stop');
+  }else{
+    banner.classList.remove('active');status.textContent='Nicht gestartet';
+    btn.textContent='STARTEN';btn.classList.remove('stop');
+    if(sessionTimer){clearInterval(sessionTimer);sessionTimer=null;}
+  }
+}
+function formatDuration(ms){const min=Math.floor(ms/60000);const h=Math.floor(min/60);const m=min%60;return h>0?`${h}h ${m}min`:`${m}min`;}
+
+// ═══════════════════════════════════════
+// SPOTS (v3-6e logic preserved)
+// ═══════════════════════════════════════
+function openSpotModal(){
+  document.getElementById('sp-name').value='';document.getElementById('sp-note').value='';
+  if(currentGPS){document.getElementById('sp-lat').value=currentGPS.lat.toFixed(6);document.getElementById('sp-lon').value=currentGPS.lon.toFixed(6);}
+  else{document.getElementById('sp-lat').value='';document.getElementById('sp-lon').value='';}
+  document.getElementById('spotModal').classList.add('open');
+}
+function closeSpotModal(){document.getElementById('spotModal').classList.remove('open');}
+function fillCurrentGps(){if(!currentGPS){showToast('Noch kein GPS-Signal',true);return;}document.getElementById('sp-lat').value=currentGPS.lat.toFixed(6);document.getElementById('sp-lon').value=currentGPS.lon.toFixed(6);}
+
+async function saveSpot(){
+  const name=document.getElementById('sp-name').value.trim();
+  const lat=parseFloat(document.getElementById('sp-lat').value);
+  const lon=parseFloat(document.getElementById('sp-lon').value);
+  const note=document.getElementById('sp-note').value||null;
+  if(!name){showToast('Name fehlt',true);return;}
+  if(isNaN(lat)||isNaN(lon)){showToast('GPS-Koordinaten fehlen',true);return;}
+  const entry={lake_code:lk(),name,lat,lon,note,created_by:currentUser,created_at:new Date().toISOString()};
+  if(supabaseOn){try{const s=await sbFetch('POST','spots',entry);spots.unshift(Array.isArray(s)?s[0]:{...entry,id:'spot_'+Date.now()});}catch(e){entry.id='spot_'+Date.now();spots.unshift(entry);}}
+  else{entry.id='spot_'+Date.now();spots.unshift(entry);}
+  persistLocal();closeSpotModal();renderSpots();populateSpotDropdown();
+  if(currentSubScreen==='stats'){const t=document.querySelector('#subStats .tab.active');if(t?.textContent==='Karte')setTimeout(renderMap,100);}
+  showToast('📍 Spot «'+name+'» gespeichert');
+}
+
+async function deleteSpot(id){
+  if(!confirm('Spot löschen?'))return;
+  if(supabaseOn){try{await sbFetch('DELETE',`spots?id=eq.${id}`);}catch(e){}}
+  spots=spots.filter(s=>s.id!==id);persistLocal();renderSpots();populateSpotDropdown();
+  if(currentSubScreen==='stats'){const t=document.querySelector('#subStats .tab.active');if(t?.textContent==='Karte')setTimeout(renderMap,100);}
+}
+
+function populateSpotDropdown(){
+  const sel=document.getElementById('f-spot');if(!sel)return;
+  sel.innerHTML='<option value="">– Kein Spot –</option>'+spots.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  if(currentGPS&&spots.length){const nearest=findNearestSpot(currentGPS.lat,currentGPS.lon);if(nearest&&nearest.dist<0.2)sel.value=nearest.spot.id;}
+}
+function findNearestSpot(lat,lon){if(!spots.length)return null;let best=null;spots.forEach(s=>{const d=haversine(lat,lon,parseFloat(s.lat),parseFloat(s.lon));if(!best||d<best.dist)best={spot:s,dist:d};});return best;}
+function haversine(lat1,lon1,lat2,lon2){const R=6371;const dLat=(lat2-lat1)*Math.PI/180;const dLon=(lon2-lon1)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+
+function renderSpots(){
+  const el=document.getElementById('spotsContent');if(!el)return;
+  if(!spots.length){el.innerHTML=`<div class="empty"><div class="ei">📍</div><p>Noch keine Spots.</p></div>`;return;}
+  el.innerHTML=spots.map(s=>{
+    const count=catches.filter(c=>c.spot_id===s.id).length;
+    const myCount=catches.filter(c=>c.spot_id===s.id&&c.fisher===currentUser).length;
+    const best=catches.filter(c=>c.spot_id===s.id&&c.length_cm).sort((a,b)=>parseFloat(b.length_cm)-parseFloat(a.length_cm))[0];
+    const dist=currentGPS?(haversine(currentGPS.lat,currentGPS.lon,parseFloat(s.lat),parseFloat(s.lon))*1000).toFixed(0)+' m':'';
+    const canDel=s.created_by===currentUser;
+    return`<div class="spot-row"><div style="flex:1;min-width:0"><div class="sp-name">${esc(s.name)}</div><div class="sp-meta">📍 ${parseFloat(s.lat).toFixed(4)}, ${parseFloat(s.lon).toFixed(4)}${dist?' · '+dist:''}<br>${count} Fänge (du: ${myCount})${best?' · Best: '+best.length_cm+'cm '+best.species:''}${s.note?'<br>💬 '+esc(s.note):''}</div></div><div style="text-align:right"><div class="sp-count">${count}</div>${canDel?`<button class="del-btn" onclick="deleteSpot('${s.id}')">🗑</button>`:''}</div></div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// PHOTO (v3-6e logic preserved)
+// ═══════════════════════════════════════
+function compressAndPreview(file,previewId,removeId,labelId,callback){
+  const img=new Image(),reader=new FileReader();
+  reader.onload=()=>{img.onload=()=>{const maxW=1200;const scale=Math.min(1,maxW/img.width);const canvas=document.createElement('canvas');canvas.width=img.width*scale;canvas.height=img.height*scale;canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);const data=canvas.toDataURL('image/jpeg',0.75);document.getElementById(previewId).src=data;document.getElementById(previewId).classList.add('show');document.getElementById(removeId).classList.add('show');document.getElementById(labelId).style.flex='0 1 auto';callback(data);};img.src=reader.result;};
+  reader.readAsDataURL(file);
+}
+function handlePhoto(e){const file=e.target.files[0];if(!file)return;compressAndPreview(file,'photoPreview','photoRemove','photoLabel',data=>{photoData=data;});}
+function removePhoto(){photoData=null;document.getElementById('f-photo').value='';document.getElementById('photoPreview').classList.remove('show');document.getElementById('photoRemove').classList.remove('show');document.getElementById('photoLabel').style.flex='1';}
+function handleNavPhoto(e){const file=e.target.files[0];if(!file)return;compressAndPreview(file,'navPreview','navRemove','navLabel',data=>{navPhotoData=data;});}
+function removeNavPhoto(){navPhotoData=null;document.getElementById('f-navphoto').value='';document.getElementById('navPreview').classList.remove('show');document.getElementById('navRemove').classList.remove('show');document.getElementById('navLabel').style.flex='1';}
+
+function selectSicht(val){document.getElementById('f-sicht').value=val;document.querySelectorAll('.sicht-btn').forEach(b=>b.classList.toggle('active',b.dataset.val===val));}
+function toggleCatchDepth(){catchDepthActive=!catchDepthActive;const btn=document.getElementById('catchDepthToggleBtn');const field=document.getElementById('catchDepthField');btn.classList.toggle('active',catchDepthActive);btn.querySelector('.toggle-icon').textContent=catchDepthActive?'✓':'+';btn.querySelector('.toggle-label').textContent=catchDepthActive?'Andere Fangtiefe aktiv':'Andere Fangtiefe (z.B. Zapfen/Auftrieb)';field.style.display=catchDepthActive?'block':'none';if(!catchDepthActive)document.getElementById('f-catchdepth').value='';}
+
+// ═══════════════════════════════════════
+// CATCH MODAL (v3-6e logic preserved)
+// ═══════════════════════════════════════
+function openCatchModal(){
+  ['f-length','f-lure','f-depth','f-wtemp','f-note','f-catchdepth','f-sicht'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('f-species').value='Zander';
+  catchDepthActive=false;
+  const btn=document.getElementById('catchDepthToggleBtn');
+  if(btn){btn.classList.remove('active');btn.querySelector('.toggle-icon').textContent='+';btn.querySelector('.toggle-label').textContent='Andere Fangtiefe (z.B. Zapfen/Auftrieb)';}
+  document.getElementById('catchDepthField').style.display='none';
+  document.querySelectorAll('.sicht-btn').forEach(b=>b.classList.remove('active'));
+  removePhoto();removeNavPhoto();populateSpotDropdown();
+  document.getElementById('catchModal').classList.add('open');
+  const stale=!currentWeather.pressure||(Date.now()-(currentWeather.fetchedAt||0))>120000;
+  if(stale){['mTemp','mPress','mWind','mMoon'].forEach(id=>setText(id,'…'));getGPS();}
+}
+function closeCatchModal(){document.getElementById('catchModal').classList.remove('open');}
+
+async function saveCatch(){
+  if(!currentWeather.pressure){showToast('⏳ Hole Wetter-Daten…');getGPS();await new Promise(r=>setTimeout(r,2500));}
+  const entry={
+    lake_code:lk(),fisher:currentUser,
+    species:document.getElementById('f-species').value,
+    spot_id:document.getElementById('f-spot').value||null,
+    length_cm:parseFloat(document.getElementById('f-length').value)||null,
+    lure:document.getElementById('f-lure').value||null,
+    depth_m:parseFloat(document.getElementById('f-depth').value)||null,
+    catch_depth_m:parseFloat(document.getElementById('f-catchdepth').value)||null,
+    water_temp:parseFloat(document.getElementById('f-wtemp').value)||null,
+    visibility:document.getElementById('f-sicht').value||null,
+    note:document.getElementById('f-note').value||null,
+    lat:currentGPS?.lat||null,lon:currentGPS?.lon||null,
+    weather_temp:currentWeather.temp??null,
+    weather_pressure:currentWeather.pressure??null,
+    weather_pressure_trend:currentWeather.pressureTrend??null,
+    weather_wind:currentWeather.wind??null,
+    weather_code:currentWeather.code??null,
+    moon_phase:currentWeather.moonPhase??null,
+    session_id:currentSession?.id??null,
+    photo:photoData,map_photo:navPhotoData,
+    created_at:new Date().toISOString()
+  };
+  if(supabaseOn){try{const s=await sbFetch('POST','catches',entry);catches.unshift(Array.isArray(s)?s[0]:{...entry,id:Date.now()});}catch(e){entry.id=Date.now();catches.unshift(entry);}}
+  else{entry.id=Date.now();catches.unshift(entry);}
+  persistLocal();closeCatchModal();renderHomeFeed();updateHomeStats();renderLogbuch();renderSpots();updateSessionUI();
+  if(currentSubScreen==='stats'){const t=document.querySelector('#subStats .tab.active');if(t?.textContent==='Stats')renderStats();}
+  if(currentSubScreen==='stats'){const t=document.querySelector('#subStats .tab.active');if(t?.textContent==='Karte')setTimeout(renderMap,100);}
+  showToast('🐟 Fang gespeichert!');
+}
+
+async function deleteCatch(id){
+  if(!confirm('Fang löschen?'))return;
+  if(supabaseOn){try{await sbFetch('DELETE',`catches?id=eq.${id}`);}catch(e){}}
+  catches=catches.filter(c=>c.id!==id);persistLocal();
+  renderHomeFeed();updateHomeStats();renderLogbuch();renderSpots();updateSessionUI();
+  if(currentSubScreen==='stats'){const t=document.querySelector('#subStats .tab.active');if(t?.textContent==='Stats')renderStats();}
+  if(currentSubScreen==='stats'){const t=document.querySelector('#subStats .tab.active');if(t?.textContent==='Karte')setTimeout(renderMap,100);}
+  showToast('Gelöscht');
+}
+
+// ═══════════════════════════════════════
+// MATCH CARD (v3-6e logic preserved)
+// ═══════════════════════════════════════
+function renderMatchCard(){
+  ['matchCard','matchCard2'].forEach(id=>{
+    const card=document.getElementById(id);if(!card)return;
+    if(!currentWeather.pressure||catches.length<3){card.innerHTML='';return;}
+    const P_TOL=8,T_TOL=4,pr=currentWeather.pressure,tp=currentWeather.temp;
+    const matching=catches.filter(c=>c.weather_pressure&&c.weather_temp!=null&&Math.abs(c.weather_pressure-pr)<=P_TOL&&Math.abs(c.weather_temp-tp)<=T_TOL);
+    if(!matching.length){card.innerHTML=`<div class="match-card"><div class="match-head"><span class="match-title">Bedingungen jetzt</span></div><div class="match-body">Keine Vergleichsdaten. <span class="hl">Neues Territorium!</span></div></div>`;return;}
+    const hourMap={};matching.forEach(c=>{const h=new Date(c.created_at).getHours();hourMap[h]=(hourMap[h]||0)+1;});
+    const bestHour=Object.entries(hourMap).sort((a,b)=>b[1]-a[1])[0];
+    const bestSpecies=matching.reduce((acc,c)=>{acc[c.species]=(acc[c.species]||0)+1;return acc;},{});
+    const topSpecies=Object.entries(bestSpecies).sort((a,b)=>b[1]-a[1])[0];
+    card.innerHTML=`<div class="match-card"><div class="match-head"><span class="match-title">🎯 Bedingungen wie jetzt</span><span class="match-score">${matching.length}×</span></div><div class="match-body">Bei ähnlichem Druck & Temperatur: <span class="hl">${matching.length} Fang${matching.length>1?'e':''}</span>${bestHour?` · <span class="hl">${bestHour[0]}–${parseInt(bestHour[0])+1} Uhr</span>`:''}${topSpecies?` · <span class="hl">${topSpecies[0]}</span>`:''}</div></div>`;
+  });
+}
+
+// ═══════════════════════════════════════
+// LOGBUCH (v3-6e logic preserved)
+// ═══════════════════════════════════════
+function switchLog(mode){
+  document.getElementById('logbuchContent').style.display=mode==='catches'?'block':'none';
+  document.getElementById('sessionsContent').style.display=mode==='sessions'?'block':'none';
+  document.getElementById('logToggleCatches').classList.toggle('active',mode==='catches');
+  document.getElementById('logToggleSessions').classList.toggle('active',mode==='sessions');
+  if(mode==='sessions')renderSessions();
+}
+
+function renderSessions(){
+  const el=document.getElementById('sessionsContent');if(!el)return;
+  if(!sessions.length){el.innerHTML=`<div class="empty"><div class="ei">⏱</div><p>Noch keine Sessions.</p></div>`;return;}
+  const groups={};
+  sessions.forEach(s=>{const key=new Date(s.started_at).toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});if(!groups[key])groups[key]=[];groups[key].push(s);});
+  el.innerHTML=Object.entries(groups).map(([day,items])=>`<div class="day-label">${day}</div>`+items.map(s=>{
+    const isMe=s.fisher===currentUser;
+    const start=new Date(s.started_at).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+    const end=s.ended_at?new Date(s.ended_at).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'}):'–';
+    const dur=s.duration_min?formatDuration(s.duration_min*60000):'–';
+    const moonData=s.start_moon!=null?getMoonPhase(s.start_moon):null;
+    const trend=s.start_pressure_trend??0;
+    const trendSym=trend>1.5?'↗':trend<-1.5?'↘':'→';
+    const wx=s.start_pressure?`🌬 ${s.start_pressure} hPa ${trendSym}`:'';
+    const temp=s.start_temp?`🌡 ${s.start_temp}°`:'';
+    const moon=moonData?`${moonData.emoji} ${moonData.name}`:'';
+    const cc=s.catches_count||0;const isSchneider=cc===0;
+    const sessCatches=catches.filter(c=>c.session_id===s.id);
+    const speciesList=[...new Set(sessCatches.map(c=>c.species))].join(', ');
+    const bestFish=sessCatches.filter(c=>c.length_cm).sort((a,b)=>parseFloat(b.length_cm)-parseFloat(a.length_cm))[0];
+    return`<div class="sess-item ${isSchneider?'schneider':''}"><div class="sess-head"><div><div class="sess-date">🕐 ${start} – ${end}</div>${!isMe?`<div class="sess-fisher">👤 ${esc(s.fisher)}</div>`:''}</div><div class="sess-dur">${dur}</div></div><div class="sess-meta">${[wx,temp,moon].filter(Boolean).join(' · ')}${s.bisse?'<br>🎯 '+s.bisse+' Bisse':''}${s.note?`<br>💬 ${esc(s.note)}`:''}${bestFish?`<br>🏆 Bester: ${bestFish.species} ${bestFish.length_cm}cm`:''}</div>${s.rating?`<div class="sess-rating">${'⭐'.repeat(s.rating)}</div>`:''}<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">${isSchneider?`<span class="sess-schneider">🥶 Schneider</span>`:`<span class="sess-catches">🐟 ${cc} Fang${cc!==1?'e':''}${speciesList?' · '+speciesList:''}</span>`}${isMe?`<button class="del-btn" onclick="deleteSession('${s.id}')">🗑</button>`:''}</div></div>`;
+  }).join('')).join('');
+}
+
+function renderLogbuch(){
+  const el=document.getElementById('logbuchContent');if(!el)return;
+  if(!catches.length){el.innerHTML=`<div class="empty"><div class="ei">🎣</div><p>Noch keine Fänge.</p></div>`;return;}
+  const groups={};catches.forEach(c=>{const k=new Date(c.created_at||c.time).toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long'});if(!groups[k])groups[k]=[];groups[k].push(c);});
+  el.innerHTML=Object.entries(groups).map(([day,items])=>`<div class="day-label">${day}</div>`+items.map(c=>{
+    const isMe=c.fisher===currentUser;
+    const time=new Date(c.created_at||c.time).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+    const emoji=SPECIES_EMOJI[c.species]||'🐟';
+    const spot=c.spot_id?spots.find(s=>s.id===c.spot_id):null;
+    const spotName=spot?`📍 ${esc(spot.name)}`:'';
+    const gps=(!spot&&c.lat&&c.lon)?`📍 ${parseFloat(c.lat).toFixed(4)}, ${parseFloat(c.lon).toFixed(4)}`:'';
+    const moonEmoji=c.moon_phase!=null?getMoonPhase(c.moon_phase).emoji:'';
+    const trend=c.weather_pressure_trend??0;const trendSym=trend>1.5?'↗':trend<-1.5?'↘':'→';
+    const wx=c.weather_temp!=null?`🌡 ${c.weather_temp}° · 🌬 ${c.weather_pressure} hPa ${trendSym} · 💨 ${c.weather_wind} km/h${moonEmoji?' · '+moonEmoji:''}`:'';
+    const photoThumb=c.photo?`<img class="catch-photo" src="${c.photo}" onclick="showPhoto('${c.id}')" alt="">`:`<div class="catch-emoji">${emoji}</div>`;
+    let depthStr='';if(c.depth_m){depthStr=` ↕ ${c.depth_m}m`;if(c.catch_depth_m&&c.catch_depth_m!==c.depth_m)depthStr+=` (Fang ${c.catch_depth_m}m)`;}
+    const sichtMap={low:'💧 trüb (<0.5m)',mid:'💧 mittel (0.5-1m)',high:'💧 klar (>1m)'};
+    const sichtStr=c.visibility&&sichtMap[c.visibility]?'<br>'+sichtMap[c.visibility]:'';
+    const mapPhotoIcon=c.map_photo?` <span onclick="showMapPhoto('${c.id}')" style="cursor:pointer">🗺</span>`:'';
+    return`<div class="catch-item ${isMe?'':'other'}">${photoThumb}<div class="catch-body"><div class="cname">${emoji} ${esc(c.species)}${mapPhotoIcon}</div>${spotName?`<div class="cspot">${spotName}</div>`:''}<div class="cmeta">🕐 ${time}${gps?'<br>'+gps:''}${wx?'<br>'+wx:''}${c.lure?'<br>🪝 '+esc(c.lure):''}${depthStr}${c.water_temp?'  🌡 '+c.water_temp+'°':''}${sichtStr}${c.note?'<br>💬 '+esc(c.note):''}</div><span class="fisher-tag ${isMe?'me':'other'}">${isMe?'👤 Du':'👤 '+esc(c.fisher)}</span>${isMe?`<div class="photo-add-row"><label class="photo-add-btn">${c.photo?'📷 ✓':'📷 +'}<input type="file" accept="image/*" onchange="addPhotoToFetch(event,'${c.id}','photo')" style="display:none"></label><label class="photo-add-btn">${c.map_photo?'🗺 ✓':'🗺 +'}<input type="file" accept="image/*" onchange="addPhotoToFetch(event,'${c.id}','map_photo')" style="display:none"></label></div>`:''}</div><div class="catch-right">${c.length_cm?`<div class="c-len">${c.length_cm}</div><div class="c-unit">cm</div>`:'<div class="c-len" style="font-size:14px;color:var(--muted)">–</div>'}${isMe?`<button class="del-btn" onclick="deleteCatch(${typeof c.id==='string'?`'${c.id}'`:c.id})">🗑</button>`:''}</div></div>`;
+  }).join('')).join('');
+}
+
+async function addPhotoToFetch(e,id,field){
+  const file=e.target.files[0];if(!file)return;showToast('⏳ Foto wird verarbeitet…');
+  const img=new Image(),reader=new FileReader();
+  reader.onload=async()=>{img.onload=async()=>{const maxW=1200;const scale=Math.min(1,maxW/img.width);const canvas=document.createElement('canvas');canvas.width=img.width*scale;canvas.height=img.height*scale;canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);const data=canvas.toDataURL('image/jpeg',0.75);const idx=catches.findIndex(c=>String(c.id)===String(id));if(idx>=0)catches[idx][field]=data;if(supabaseOn){try{await sbFetch('PATCH',`catches?id=eq.${id}`,{[field]:data});}catch(e){console.warn('Foto-Update Fehler:',e);}}persistLocal();renderLogbuch();renderHomeFeed();showToast(field==='photo'?'📷 Foto gespeichert':'🗺 Screenshot gespeichert');};img.src=reader.result;};
+  reader.readAsDataURL(file);
+}
+
+function showPhoto(id){const c=catches.find(x=>String(x.id)===String(id));if(!c||!c.photo)return;document.getElementById('photoOverlayImg').src=c.photo;document.getElementById('photoOverlay').classList.add('open');}
+function showMapPhoto(id){const c=catches.find(x=>String(x.id)===String(id));if(!c||!c.map_photo)return;document.getElementById('photoOverlayImg').src=c.map_photo;document.getElementById('photoOverlay').classList.add('open');}
+function closePhotoOverlay(){document.getElementById('photoOverlay').classList.remove('open');document.getElementById('photoOverlayImg').src='';}
+
+// ═══════════════════════════════════════
+// STATS (v3-6e logic preserved)
+// ═══════════════════════════════════════
+function renderStats(){
+  const el=document.getElementById('statsContent');if(!el)return;
+  const mySessions=sessions.filter(s=>s.fisher===currentUser);
+  const totalMin=mySessions.reduce((a,s)=>a+(s.duration_min||0),0);
+  const schneiders=mySessions.filter(s=>(s.catches_count||0)===0).length;
+  if(!catches.length){
+    if(!mySessions.length){el.innerHTML=`<div class="empty"><div class="ei">📊</div><p>Noch keine Daten.</p></div>`;return;}
+    el.innerHTML=`<div class="stats-grid"><div class="stat-card"><div class="sv">${mySessions.length}</div><div class="sl">Sessions</div></div><div class="stat-card"><div class="sv">${formatDuration(totalMin*60000)}</div><div class="sl">Total Zeit</div></div><div class="stat-card"><div class="sv">${schneiders}</div><div class="sl">Schneider</div></div><div class="stat-card"><div class="sv">–</div><div class="sl">Noch kein Fang</div></div></div><div class="insight warn"><span class="ih">🥶 Noch kein Fang</span><p>${mySessions.length} Session${mySessions.length!==1?'en':''} — der erste Fang kommt!</p></div>`;return;
+  }
+  const mine=catches.filter(c=>c.fisher===currentUser);
+  const allLen=catches.filter(c=>c.length_cm).map(c=>parseFloat(c.length_cm));
+  const myLen=mine.filter(c=>c.length_cm).map(c=>parseFloat(c.length_cm));
+  const best=allLen.length?Math.max(...allLen):null;
+  const avg=myLen.length?Math.round(myLen.reduce((a,b)=>a+b,0)/myLen.length):null;
+  const total=catches.length;
+  const fisherMap={};catches.forEach(c=>{if(!fisherMap[c.fisher])fisherMap[c.fisher]={name:c.fisher,count:0,maxLen:0,totalLen:0,lenCount:0};fisherMap[c.fisher].count++;if(c.length_cm){const l=parseFloat(c.length_cm);fisherMap[c.fisher].totalLen+=l;fisherMap[c.fisher].lenCount++;if(l>fisherMap[c.fisher].maxLen)fisherMap[c.fisher].maxLen=l;}});
+  const leaderboard=Object.values(fisherMap).sort((a,b)=>b.count-a.count);
+  const topCount=leaderboard[0]?.count||1;
+  const fisherColors=['#ffffff','#5b8fff','#f5a623','#4caf50','#b062ff'];
+  const fisherOrder=leaderboard.map(l=>l.name);
+  const hourBuckets=[{label:'04-08',h0:4,h1:8},{label:'08-12',h0:8,h1:12},{label:'12-16',h0:12,h1:16},{label:'16-20',h0:16,h1:20},{label:'20-24',h0:20,h1:24},{label:'00-04',h0:0,h1:4}];
+  const hm=hourBuckets.map(()=>new Array(12).fill(0));catches.forEach(c=>{const d=new Date(c.created_at||c.time);const h=d.getHours(),m=d.getMonth();const bi=hourBuckets.findIndex(b=>h>=b.h0&&h<b.h1);if(bi>=0)hm[bi][m]++;});
+  const hmMax=Math.max(1,...hm.flat());
+  const monthStack=Array.from({length:12},()=>fisherOrder.map(()=>0));catches.forEach(c=>{const m=new Date(c.created_at||c.time).getMonth();const fi=fisherOrder.indexOf(c.fisher);if(fi>=0)monthStack[m][fi]++;});
+  const maxM=Math.max(...monthStack.map(arr=>arr.reduce((a,b)=>a+b,0)),1);
+  const catchRate=totalMin>0?(mine.length/(totalMin/60)).toFixed(1):null;
+  const lureMap={};mine.forEach(c=>{if(c.lure)lureMap[c.lure]=(lureMap[c.lure]||0)+1;});
+  const topLures=Object.entries(lureMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const spotMap={};mine.forEach(c=>{if(c.spot_id)spotMap[c.spot_id]=(spotMap[c.spot_id]||0)+1;});
+  const topSpot=Object.entries(spotMap).sort((a,b)=>b[1]-a[1])[0];
+  const topSpotName=topSpot?spots.find(s=>s.id===topSpot[0])?.name:null;
+  const insights=[];
+  if(mine.length>=3){const hmap={};mine.forEach(c=>{const h=new Date(c.created_at).getHours();hmap[h]=(hmap[h]||0)+1;});const bh=Object.entries(hmap).sort((a,b)=>b[1]-a[1])[0];if(bh)insights.push({h:'⏰ Beste Zeit',t:`Du fängst am meisten zwischen <strong>${bh[0]}–${parseInt(bh[0])+1} Uhr</strong> (${bh[1]} Fänge)`});const presLens=mine.filter(c=>c.weather_pressure&&c.length_cm);if(presLens.length>=3){const avgPres=Math.round(presLens.reduce((a,c)=>a+c.weather_pressure,0)/presLens.length);insights.push({h:'🌬 Druck-Sweet-Spot',t:`Ø bei deinen Fängen: <strong>${avgPres} hPa</strong>`});}const rising=mine.filter(c=>(c.weather_pressure_trend||0)>1).length;const falling=mine.filter(c=>(c.weather_pressure_trend||0)<-1).length;if(rising+falling>=3){const which=rising>falling?'steigendem':falling>rising?'fallendem':'stabilem';insights.push({h:'📈 Druck-Trend',t:`Du fängst häufiger bei <strong>${which}</strong> Luftdruck (${rising}↗ vs ${falling}↘)`});}}
+  if(catchRate)insights.push({h:'🎯 Deine Quote',t:`<strong>${catchRate} Fische/Stunde</strong> über ${mySessions.length} Sessions`});
+  if(schneiders>0)insights.push({h:'🥶 Schneider-Quote',t:`<strong>${schneiders} von ${mySessions.length}</strong> Sessions ohne Fang`,warn:true});
+  const top3=[...catches].filter(c=>c.length_cm).sort((a,b)=>parseFloat(b.length_cm)-parseFloat(a.length_cm)).slice(0,3);
+  const medals=['🥇','🥈','🥉'];
+  el.innerHTML=`
+    <div class="leaderboard"><div class="lb-title">// Rangliste · ${esc(currentGroup?.name||'')}</div>${leaderboard.map((f,i)=>{const isMe=f.name===currentUser;const pct=Math.round(f.count/topCount*100);const medal=medals[i]||'🎣';const fAvg=f.lenCount?Math.round(f.totalLen/f.lenCount):null;return`<div class="lb-row ${isMe?'me':''}"><div class="lb-rank">${medal}</div><div class="lb-main"><div class="lb-name">${esc(f.name)}${isMe?` <span class="lb-you">(Du)</span>`:''}</div><div class="lb-bar-wrap"><div class="lb-bar" style="width:${pct}%;background:${fisherColors[i%fisherColors.length]}"></div></div><div class="lb-meta">${f.count} Fang${f.count!==1?'e':''}${f.maxLen?' · Best: '+f.maxLen+'cm':''}${fAvg?' · Ø '+fAvg+'cm':''}</div></div><div class="lb-count" style="color:${fisherColors[i%fisherColors.length]}">${f.count}</div></div>`;}).join('')}</div>
+    <div class="stats-grid"><div class="stat-card"><div class="sv">${total}</div><div class="sl">Total Fänge</div></div><div class="stat-card"><div class="sv">${best?best+'cm':'–'}</div><div class="sl">Grösster Fisch</div></div><div class="stat-card"><div class="sv">${avg?avg+'cm':'–'}</div><div class="sl">Dein Ø</div></div><div class="stat-card"><div class="sv">${mine.filter(c=>c.species==='Zander').length}</div><div class="sl">Deine Zander</div></div></div>
+    ${insights.length?`<div class="section-lbl">💡 Erkenntnisse</div>${insights.map(i=>`<div class="insight ${i.warn?'warn':''}"><span class="ih">${i.h}</span><p>${i.t}</p></div>`).join('')}`:''}
+    <div class="chart-wrap"><div class="section-lbl">🔥 Beiss-Heatmap <span class="hint">Tageszeit × Monat</span></div><div class="heatmap"><div></div>${MONTHS.map(m=>`<div class="hm-label">${m.substring(0,1)}</div>`).join('')}${hourBuckets.map((b,bi)=>`<div class="hm-hour">${b.label}</div>${MONTHS.map((_,mi)=>{const v=hm[bi][mi];const lvl=v===0?0:Math.min(4,Math.ceil((v/hmMax)*4));return`<div class="hm-cell" data-v="${lvl}"></div>`;}).join('')}`).join('')}</div></div>
+    <div class="chart-wrap"><div class="section-lbl">📊 Fänge nach Monat</div><div class="bars">${MONTHS.map((m,i)=>{const stack=monthStack[i];const t=stack.reduce((a,b)=>a+b,0);const h=Math.round(t/maxM*64);const segs=stack.map((cnt,fi)=>{if(!cnt)return'';const segH=Math.round(cnt/t*h);return`<div style="height:${segH}px;background:${fisherColors[fi%fisherColors.length]}"></div>`;}).reverse().join('');return`<div class="bar-col"><div class="bar-stack" style="height:${h}px">${segs}</div><div class="bar-lbl">${m}</div></div>`;}).join('')}</div><div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap">${fisherOrder.map((name,fi)=>`<span style="font-size:11px;font-weight:600;color:${fisherColors[fi%fisherColors.length]}">▮ ${esc(name)}${name===currentUser?' (Du)':''}</span>`).join('')}</div></div>
+    ${topLures.length?`<div class="section-lbl">🪝 Deine Top-Köder</div><div class="podium">${topLures.map(([l,n],i)=>`<div class="podium-item"><div><div class="pi-label">${medals[i]||'•'} ${esc(l)}</div></div><div class="pi-val">${n}×</div></div>`).join('')}</div>`:''}
+    ${topSpotName?`<div class="section-lbl">📍 Dein Top-Spot</div><div class="podium"><div class="podium-item"><div><div class="pi-label">🏆 ${esc(topSpotName)}</div></div><div class="pi-val">${topSpot[1]} Fänge</div></div></div>`:''}
+    ${top3.length?`<div class="section-lbl">🏆 Grösste Fänge</div><div class="podium">${top3.map((c,i)=>{const isMe=c.fisher===currentUser;const d=new Date(c.created_at||c.time).toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit',year:'2-digit'});return`<div class="podium-item"><div><div class="pi-label">${medals[i]} ${esc(c.species)}</div><div class="pi-val">${c.length_cm} cm</div></div><div style="text-align:right"><span class="fisher-tag ${isMe?'me':'other'}">${isMe?'👤 Du':'👤 '+esc(c.fisher)}</span><div style="font-size:12px;font-weight:500;color:var(--muted);margin-top:4px">${d}</div></div></div>`;}).join('')}</div>`:''}
+  `;
+}
+
+// ═══════════════════════════════════════
+// MAP (v3-6e logic preserved)
+// ═══════════════════════════════════════
+function renderMap(){
+  if(typeof L==='undefined'){document.getElementById('mapContainer').innerHTML='<div class="empty"><div class="ei">🗺</div><p>Karte konnte nicht geladen werden.</p></div>';return;}
+  if(!mapInstance){mapInstance=L.map('mapContainer',{zoomControl:true,attributionControl:true}).setView([47.135,8.783],13);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(mapInstance);}
+  if(mapLayers.catches)mapLayers.catches.clearLayers();else mapLayers.catches=L.layerGroup().addTo(mapInstance);
+  if(mapLayers.spots)mapLayers.spots.clearLayers();else mapLayers.spots=L.layerGroup().addTo(mapInstance);
+  const speciesColor={'Zander':'#ffffff','Hecht':'#5b8fff','Barsch / Egli':'#f5a623','Bachforelle':'#4caf50','Regenbogenforelle':'#4caf50','Seeforelle':'#4caf50','Andere':'#b062ff'};
+  spots.forEach(s=>{if(!s.lat||!s.lon)return;const icon=L.divIcon({html:'<div style="font-size:24px;text-align:center;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6))">📍</div>',iconSize:[30,30],iconAnchor:[15,28],className:''});const count=catches.filter(c=>c.spot_id===s.id).length;const marker=L.marker([parseFloat(s.lat),parseFloat(s.lon)],{icon});marker.bindPopup(`<div class="pop-title">📍 ${esc(s.name)}</div><div class="pop-meta">${count} Fang${count!==1?'e':''} an diesem Spot${s.note?'<br>💬 '+esc(s.note):''}</div>`);marker.addTo(mapLayers.spots);});
+  const catchesWithGps=catches.filter(c=>c.lat&&c.lon);
+  catchesWithGps.forEach(c=>{const color=speciesColor[c.species]||'#b062ff';const size=c.length_cm?Math.min(40,Math.max(14,10+parseFloat(c.length_cm)/3)):14;const isMe=c.fisher===currentUser;const icon=L.divIcon({html:`<div class="fish-marker" style="width:${size}px;height:${size}px;background:${color};opacity:${isMe?1:0.75};border-color:${isMe?'#fff':'rgba(255,255,255,0.7)'};"></div>`,iconSize:[size,size],iconAnchor:[size/2,size/2],className:''});const date=new Date(c.created_at||c.time).toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit',year:'2-digit'});const time=new Date(c.created_at||c.time).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});const spot=c.spot_id?spots.find(s=>s.id===c.spot_id):null;const moonEmoji=c.moon_phase!=null?getMoonPhase(c.moon_phase).emoji:'';const marker=L.marker([parseFloat(c.lat),parseFloat(c.lon)],{icon});marker.bindPopup(`<div class="pop-title">${SPECIES_EMOJI[c.species]||'🐟'} ${esc(c.species)} ${c.length_cm?c.length_cm+'cm':''}</div><div class="pop-meta">👤 ${esc(c.fisher)}${isMe?' (Du)':''}<br>📅 ${date} · 🕐 ${time}${spot?'<br>📍 '+esc(spot.name):''}${c.lure?'<br>🪝 '+esc(c.lure):''}${c.weather_temp!=null?'<br>🌡 '+c.weather_temp+'° · 🌬 '+c.weather_pressure+' hPa'+(moonEmoji?' · '+moonEmoji:''):''}${c.note?'<br>💬 '+esc(c.note):''}</div>${c.photo?`<img class="pop-photo" src="${c.photo}" alt="">`:''}`,{maxWidth:240});marker.addTo(mapLayers.catches);});
+  if(mapLayers.me){mapInstance.removeLayer(mapLayers.me);mapLayers.me=null;}
+  if(currentGPS){const meIcon=L.divIcon({html:'<div style="width:14px;height:14px;border-radius:50%;background:#5b8fff;border:3px solid #fff;box-shadow:0 0 0 4px rgba(91,143,255,0.3),0 2px 8px rgba(0,0,0,0.4);"></div>',iconSize:[14,14],iconAnchor:[7,7],className:''});mapLayers.me=L.marker([currentGPS.lat,currentGPS.lon],{icon:meIcon,zIndexOffset:1000}).bindPopup('<div class="pop-title">👤 Du bist hier</div>').addTo(mapInstance);}
+  const allPoints=[...catchesWithGps.map(c=>[parseFloat(c.lat),parseFloat(c.lon)]),...spots.filter(s=>s.lat&&s.lon).map(s=>[parseFloat(s.lat),parseFloat(s.lon)]),...(currentGPS?[[currentGPS.lat,currentGPS.lon]]:[])];
+  if(allPoints.length>1)mapInstance.fitBounds(allPoints,{padding:[40,40],maxZoom:15});else if(allPoints.length===1)mapInstance.setView(allPoints[0],14);
+  setTimeout(()=>mapInstance.invalidateSize(),100);
+  const stats=document.getElementById('mapStats');
+  if(!catchesWithGps.length&&!spots.length)stats.innerHTML='Noch keine Fänge oder Spots mit GPS. Mach deinen ersten Fang!';
+  else stats.innerHTML=`<strong>${catchesWithGps.length}</strong> Fänge · <strong>${spots.length}</strong> Spot${spots.length!==1?'s':''} · Tipp auf Marker für Details`;
+}
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function showToast(msg,isErr=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(isErr?' err':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+init();
+
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').then(()=>console.log('SW ✅')).catch(e=>console.warn('SW Fehler:',e));});}
+</script>
+</body>
+</html>
