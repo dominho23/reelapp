@@ -121,7 +121,9 @@ body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font
 .feed-tag{font-size:13px;font-weight:500;color:var(--dim);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 10px}
 
 /* Bottom nav */
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,12,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border2);padding:10px 8px calc(28px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;align-items:center;z-index:35}
+/* Bottom nav hidden by default, shown only in app */
+.bottom-nav{display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,12,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border2);padding:10px 8px calc(28px + env(safe-area-inset-bottom));justify-content:space-around;align-items:center;z-index:35}
+.bottom-nav.visible{display:flex}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;cursor:pointer}
 .nav-icon{color:var(--muted)}
 .nav-icon.active{color:var(--white)}
@@ -931,6 +933,12 @@ function init(){
           showApp();updateClock();setInterval(updateClock,1000);return;
         }
       }
+      // No saved group but has groups — use first
+      if(userGroups.length){
+        currentGroup=userGroups[0];
+        currentLake=currentGroup.lake||currentGroup.name;
+        showApp();updateClock();setInterval(updateClock,1000);return;
+      }
       document.getElementById('loginScreen').classList.add('hidden');
       showGroupScreen();
     }catch(e){}
@@ -946,9 +954,22 @@ function doLogin(){
   if(!n){showToast('Bitte Namen eingeben',true);return;}
   currentUser=n;
   userGroups=JSON.parse(localStorage.getItem('reel_v3_groups_'+currentUser)||'[]');
-  localStorage.setItem('reel_v3_session',JSON.stringify({u:n,g:null,lake:null}));
+  
+  // Auto-create personal group if none exists
+  if(!userGroups.length){
+    const code=n.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4)+(Math.floor(Math.random()*90)+10);
+    const group={name:n,lake:n,code,created_by:n,created_at:new Date().toISOString(),personal:true};
+    userGroups.push(group);
+    localStorage.setItem('reel_v3_groups_'+currentUser,JSON.stringify(userGroups));
+  }
+  
+  // Go directly to app with first/personal group
+  currentGroup=userGroups[0];
+  currentLake=currentGroup.lake||currentGroup.name;
+  localStorage.setItem('reel_v3_session',JSON.stringify({u:n,g:currentGroup.code,lake:currentLake}));
   document.getElementById('loginScreen').classList.add('hidden');
-  showGroupScreen();
+  showApp();
+  updateClock();setInterval(updateClock,1000);
 }
 
 function doLogout(){
@@ -1068,6 +1089,7 @@ function closeBsSheet(){document.getElementById('bsOverlay').classList.remove('o
 function showApp(){
   document.getElementById('groupScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
+  document.querySelector('.bottom-nav').classList.add('visible');
   document.getElementById('headerGroupName').textContent=currentLake||currentGroup?.name||'–';
   document.getElementById('appAvatar').textContent=initials(currentUser);
   updateHomeHeader();
@@ -1253,12 +1275,57 @@ function renderProfil(){
         <div class="stat-card"><div class="sv">${best?best+' cm':'–'}</div><div class="sl">Grösster Fisch</div></div>
         <div class="stat-card"><div class="sv">${avg?avg+' cm':'–'}</div><div class="sl">Ø Länge</div></div>
       </div>
-      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
-        <button class="btn-secondary" onclick="showGroupScreen_fromApp()">Gruppe wechseln</button>
-        <button class="btn-secondary" onclick="doLogout()" style="color:var(--danger);border-color:var(--danger)">Abmelden</button>
+
+      <div class="section-lbl" style="margin-top:24px">// Gruppen</div>
+      ${userGroups.map(g=>`
+        <div style="background:var(--card);border:1px solid ${g.code===currentGroup?.code?'#555':' var(--border2)'};border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="switchGroup('${g.code}')">
+          <div>
+            <div style="font-size:16px;font-weight:600;color:var(--white)">${esc(g.name)}${g.code===currentGroup?.code?' ✓':''}</div>
+            <div style="font-size:12px;font-weight:500;color:var(--muted);margin-top:3px;font-family:'Space Mono',monospace">${g.code}</div>
+          </div>
+          ${!g.personal?`<button onclick="event.stopPropagation();deleteGroup('${g.code}')" style="background:none;border:none;color:var(--subtle);cursor:pointer;font-size:16px;opacity:0.5">🗑</button>`:''}
+        </div>
+      `).join('')}
+
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-secondary" style="flex:1" onclick="openCreateGroupFromProfil()">+ Neue Gruppe</button>
+        <button class="btn-secondary" style="flex:1" onclick="openJoinGroupFromProfil()">Beitreten</button>
       </div>
+
+      <button class="btn-secondary" onclick="doLogout()" style="margin-top:24px;color:var(--danger);border-color:var(--danger)">Abmelden</button>
     </div>
   `;
+}
+
+function switchGroup(code){
+  const g=userGroups.find(x=>x.code===code);
+  if(!g)return;
+  currentGroup=g;
+  currentLake=g.lake||g.name;
+  saveSession();updateHomeHeader();loadAll();
+  showHome();
+  showToast('// '+g.name);
+}
+
+function openCreateGroupFromProfil(){
+  document.getElementById('bsTitle').textContent='// Neue Gruppe erstellen';
+  document.getElementById('bsContent').innerHTML=`
+    <div class="field"><label>Gruppenname</label><input type="text" id="gs-name" placeholder="z.B. Sihlsee 2025"></div>
+    <div class="field"><label>Hauptgewässer</label><input type="text" id="gs-lake" placeholder="z.B. Sihlsee"></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">Code wird automatisch generiert.</p>
+    <button class="save-btn" onclick="createGroup()">GRUPPE ERSTELLEN</button>
+  `;
+  openBsSheet();
+}
+
+function openJoinGroupFromProfil(){
+  document.getElementById('bsTitle').textContent='// Gruppe beitreten';
+  document.getElementById('bsContent').innerHTML=`
+    <div class="field"><label>Gruppen-Code</label><input type="text" id="gs-code" placeholder="z.B. SIHLSEE25" style="text-transform:uppercase"></div>
+    <div class="field"><label>Gewässer-Name</label><input type="text" id="gs-join-lake" placeholder="z.B. Sihlsee"></div>
+    <button class="save-btn" onclick="joinGroup()">BEITRETEN</button>
+  `;
+  openBsSheet();
 }
 
 function renderHomeFeed(){
