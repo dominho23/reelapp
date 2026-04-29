@@ -1753,7 +1753,16 @@ function switchLog(mode){
   document.getElementById('sessionsContent').style.display=mode==='sessions'?'block':'none';
   document.getElementById('logToggleCatches').classList.toggle('active',mode==='catches');
   document.getElementById('logToggleSessions').classList.toggle('active',mode==='sessions');
-  if(mode==='sessions')renderSessions();
+  if(mode==='sessions'){
+    // Always reload sessions fresh when switching to sessions tab
+    if(supabaseOn){
+      sbFetch('GET',`sessions?lake_code=eq.${encodeURIComponent(lk())}&order=started_at.desc`)
+        .then(data=>{sessions=data;persistLocal();renderSessions();})
+        .catch(()=>renderSessions());
+    } else {
+      renderSessions();
+    }
+  }
 }
 
 function renderSessions(){
