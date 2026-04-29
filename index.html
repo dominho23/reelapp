@@ -1456,7 +1456,12 @@ async function loadAll(){
     try{
       catches=await sbFetch('GET',`catches?lake_code=eq.${encodeURIComponent(lk())}&order=created_at.desc`);
       spots=await sbFetch('GET',`spots?lake_code=eq.${encodeURIComponent(lk())}&order=created_at.desc`);
-      sessions=await sbFetch('GET',`sessions?lake_code=eq.${encodeURIComponent(lk())}&order=started_at.desc`);
+      const remoteSessions=await sbFetch('GET',`sessions?lake_code=eq.${encodeURIComponent(lk())}&order=started_at.desc`);
+      // Merge: keep local sessions that Supabase doesn't have yet
+      const localSessions=JSON.parse(localStorage.getItem('reel_v3_sessions_'+lk())||'[]');
+      const remoteIds=new Set(remoteSessions.map(s=>s.id));
+      const localOnly=localSessions.filter(s=>!remoteIds.has(s.id));
+      sessions=[...localOnly,...remoteSessions].sort((a,b)=>new Date(b.started_at)-new Date(a.started_at));
       dot.classList.remove('offline');persistLocal();
     }catch(e){dot.classList.add('offline');loadLocal();}
   }else{dot.classList.add('offline');loadLocal();}
@@ -1526,14 +1531,32 @@ async function endSession(){
     start_lat:currentSession.start_gps?.lat??null,
     start_lon:currentSession.start_gps?.lon??null
   };
-  if(supabaseOn){try{await sbFetch('POST','sessions',entry);}catch(e){console.error('Session save error:',e);showToast('⚠️ Session konnte nicht gespeichert werden',true);}}
-  sessions.unshift(entry);persistLocal();
+
+  // Always save locally first
+  sessions.unshift(entry);
+  persistLocal();
   localStorage.removeItem('reel_v3_active_session_'+currentUser);
-  currentSession=null;closeSessionModal();updateSessionUI();
+  currentSession=null;
+  closeSessionModal();
+  updateSessionUI();
+
+  // Then try Supabase
+  let supabaseOk=true;
+  if(supabaseOn){
+    try{await sbFetch('POST','sessions',entry);}
+    catch(e){
+      supabaseOk=false;
+      console.error('Session Supabase Fehler:',e.message);
+    }
+  }
+
+  // Render sessions immediately from local data
   const sessEl=document.getElementById('sessionsContent');
   if(sessEl&&sessEl.style.display!=='none')renderSessions();
+
   const msg=sc.length?`✅ ${sc.length} Fang${sc.length>1?'e':''} in ${formatDuration(durMs)}`:'🥶 Schneider! ('+formatDuration(durMs)+')';
   showToast(msg);
+  if(!supabaseOk)setTimeout(()=>showToast('⚠️ Session nur lokal gespeichert',true),3000);
 }
 
 async function deleteSession(id){
