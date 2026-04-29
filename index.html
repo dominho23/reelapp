@@ -508,7 +508,7 @@ body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font
 </div>
 
 
-  <div class="bottom-nav">
+  <div class="bottom-nav" id="bottomNav" style="display:none">
     <div class="nav-item" onclick="showHome()">
       <div class="nav-icon active" id="nav-home">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -977,8 +977,7 @@ function doLogout(){
   localStorage.removeItem('reel_v3_session');
   currentUser=null;currentGroup=null;currentLake=null;
   if(sessionTimer)clearInterval(sessionTimer);currentSession=null;
-  document.querySelector('.bottom-nav').classList.remove('visible');
-  document.querySelector('.bottom-nav').style.zIndex='12';
+  const nav=document.getElementById('bottomNav');nav.style.display='none';
   document.getElementById('appScreen').classList.add('hidden');
   document.getElementById('groupScreen').classList.add('hidden');
   hideAllSubScreens();
@@ -1092,8 +1091,7 @@ function closeBsSheet(){document.getElementById('bsOverlay').classList.remove('o
 function showApp(){
   document.getElementById('groupScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
-  document.querySelector('.bottom-nav').classList.add('visible');
-  document.querySelector('.bottom-nav').style.zIndex='35';
+  const nav=document.getElementById('bottomNav');nav.style.display='flex';nav.style.zIndex='35';
   document.getElementById('headerGroupName').textContent=currentLake||currentGroup?.name||'–';
   document.getElementById('appAvatar').textContent=initials(currentUser);
   updateHomeHeader();
@@ -1463,7 +1461,7 @@ async function loadAll(){
     }catch(e){dot.classList.add('offline');loadLocal();}
   }else{dot.classList.add('offline');loadLocal();}
   renderHomeFeed();updateHomeStats();renderLogbuch();renderSpots();populateSpotDropdown();renderMatchCard();
-  if(document.getElementById('sessionsContent')?.style.display!=='none')renderSessions();
+  renderSessions();
   if(currentSubScreen==='stats'){const activeTab=document.querySelector('#subStats .tab.active');if(activeTab?.textContent==='Karte')renderMap();}
   if(currentSubScreen==='feed')renderFeed();
   // Sync dots
@@ -1532,7 +1530,7 @@ async function endSession(){
   sessions.unshift(entry);persistLocal();
   localStorage.removeItem('reel_v3_active_session_'+currentUser);
   currentSession=null;closeSessionModal();updateSessionUI();
-  if(document.getElementById('sessionsContent')?.style.display!=='none')renderSessions();
+  renderSessions();
   const msg=sc.length?`✅ ${sc.length} Fang${sc.length>1?'e':''} in ${formatDuration(durMs)}`:'🥶 Schneider! ('+formatDuration(durMs)+')';
   showToast(msg);
 }
@@ -1754,7 +1752,7 @@ function switchLog(mode){
   document.getElementById('sessionsContent').style.display=mode==='sessions'?'block':'none';
   document.getElementById('logToggleCatches').classList.toggle('active',mode==='catches');
   document.getElementById('logToggleSessions').classList.toggle('active',mode==='sessions');
-  if(mode==='sessions')setTimeout(()=>renderSessions(),50);
+  if(mode==='sessions')renderSessions();
 }
 
 function renderSessions(){
