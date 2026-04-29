@@ -920,6 +920,9 @@ let currentSubScreen=null;
 // ═══════════════════════════════════════
 function init(){
   supabaseOn=!!(SUPABASE_URL&&SUPABASE_ANON_KEY);
+  // Always hide nav first
+  const nav=document.getElementById('bottomNav');
+  if(nav)nav.style.display='none';
   const s=localStorage.getItem('reel_v3_session');
   if(s){
     try{
