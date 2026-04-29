@@ -122,8 +122,8 @@ body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font
 
 /* Bottom nav */
 /* Bottom nav hidden by default, shown only in app */
-.bottom-nav{display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,12,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border2);padding:10px 8px calc(28px + env(safe-area-inset-bottom));justify-content:space-around;align-items:center;z-index:12;pointer-events:none}
-body.app-ready .bottom-nav.visible{display:flex;pointer-events:all}
+.bottom-nav{display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,12,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border2);padding:10px 8px calc(28px + env(safe-area-inset-bottom));justify-content:space-around;align-items:center;z-index:35}
+.bottom-nav.visible{display:flex}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;cursor:pointer}
 .nav-icon{color:var(--muted)}
 .nav-icon.active{color:var(--white)}
