@@ -1526,7 +1526,7 @@ async function endSession(){
     start_lat:currentSession.start_gps?.lat??null,
     start_lon:currentSession.start_gps?.lon??null
   };
-  if(supabaseOn){try{await sbFetch('POST','sessions',entry);}catch(e){}}
+  if(supabaseOn){try{await sbFetch('POST','sessions',entry);}catch(e){console.error('Session save error:',e);showToast('⚠️ Session konnte nicht gespeichert werden',true);}}
   sessions.unshift(entry);persistLocal();
   localStorage.removeItem('reel_v3_active_session_'+currentUser);
   currentSession=null;closeSessionModal();updateSessionUI();
@@ -1550,7 +1550,7 @@ function updateSessionUI(){
   if(!banner)return;
   if(currentSession){
     banner.classList.add('active');
-    const upd=()=>{const dur=formatDuration(Date.now()-new Date(currentSession.started_at).getTime());const n=catches.filter(c=>c.session_id===currentSession.id&&c.fisher===currentUser).length;status.textContent=`🟢 Läuft · ${dur} · ${n} Fang${n===1?'':'e'}`;};
+    const upd=()=>{const dur=formatDuration(Date.now()-new Date(currentSession.started_at).getTime());const n=catches.filter(c=>c.session_id===currentSession.id&&c.fisher===currentUser).length;status.textContent=`🟢 Läuft · ${dur} · ${n} ${n===1?'Fang':'Fänge'}`;};
     upd();if(sessionTimer)clearInterval(sessionTimer);sessionTimer=setInterval(upd,30000);
     btn.textContent='BEENDEN';btn.classList.add('stop');
   }else{
