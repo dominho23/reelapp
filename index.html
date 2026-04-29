@@ -1461,10 +1461,10 @@ async function loadAll(){
     }catch(e){dot.classList.add('offline');loadLocal();}
   }else{dot.classList.add('offline');loadLocal();}
   renderHomeFeed();updateHomeStats();renderLogbuch();renderSpots();populateSpotDropdown();renderMatchCard();
-  renderSessions();
+  const sessEl=document.getElementById('sessionsContent');
+  if(sessEl&&sessEl.style.display!=='none')renderSessions();
   if(currentSubScreen==='stats'){const activeTab=document.querySelector('#subStats .tab.active');if(activeTab?.textContent==='Karte')renderMap();}
   if(currentSubScreen==='feed')renderFeed();
-  // Sync dots
   const dot2=document.getElementById('syncDot2');if(dot2)dot2.className=document.getElementById('syncDot').className;
 }
 
@@ -1530,7 +1530,8 @@ async function endSession(){
   sessions.unshift(entry);persistLocal();
   localStorage.removeItem('reel_v3_active_session_'+currentUser);
   currentSession=null;closeSessionModal();updateSessionUI();
-  renderSessions();
+  const sessEl=document.getElementById('sessionsContent');
+  if(sessEl&&sessEl.style.display!=='none')renderSessions();
   const msg=sc.length?`✅ ${sc.length} Fang${sc.length>1?'e':''} in ${formatDuration(durMs)}`:'🥶 Schneider! ('+formatDuration(durMs)+')';
   showToast(msg);
 }
