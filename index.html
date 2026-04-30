@@ -1931,6 +1931,13 @@ function renderMap(){
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function showToast(msg,isErr=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(isErr?' err':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&!currentUser){
+    const nav=document.getElementById('bottomNav');
+    if(nav)nav.style.display='none';
+  }
+});
+
 init();
 
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(()=>console.log('SW ✅')).catch(e=>console.warn('SW Fehler:',e));});}
